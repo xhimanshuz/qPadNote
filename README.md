@@ -1,0 +1,3 @@
+# qPadNote
+Note taking and Task listing application developed with Qt/C++
+## Under Development...
