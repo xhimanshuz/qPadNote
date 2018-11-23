@@ -1,7 +1,7 @@
 ![alt text](https://github.com/xhimanshuz/qPadNote/blob/master/Data/header.png)
-#Features
+
 # Features
-- Keep your goal on screen
+- Keep your goal and Task on screen.
 ![alt text](https://github.com/xhimanshuz/qPadNote/blob/master/Data/qPadNoteDetail.png)
 # Instruction
 Download x64 binary > https://github.com/xhimanshuz/qPadNote/releases
