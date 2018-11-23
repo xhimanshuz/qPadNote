@@ -1,7 +1,6 @@
 #include "mainpadnote.h"
 #include<QDebug>
-#include<QIcon>
-#include<QPixmap>
+
 MainPadNote::MainPadNote(QRect screenSize, QWidget *parent)
     : QWidget(parent), fontSize(15)
 {
@@ -33,7 +32,6 @@ MainPadNote::MainPadNote(QRect screenSize, QWidget *parent)
     connect(tab, SIGNAL(currentChanged(int)), this, SLOT(setLabel(int)));
     tab->setMovable(true);
     tab->setTabPosition(QTabWidget::South);
-    tab->addTab(new TextField(fontSize), tr("Tab %1").arg(tab->count() + 1 ));
 
     QVBoxLayout *vbox = new QVBoxLayout();
     vbox->addLayout(hbox);
@@ -42,6 +40,8 @@ MainPadNote::MainPadNote(QRect screenSize, QWidget *parent)
     setLayout(vbox);
 
     configStyleSheet();
+    initializeFile();
+
 }
 
 void MainPadNote::createToolButtonMenu()
@@ -52,6 +52,16 @@ void MainPadNote::createToolButtonMenu()
     settingAction->setShortcut(QKeySequence("F2"));
     connect(settingAction, SIGNAL(triggered()), this, SLOT(_settingDialog()));
     toolButtonMenu->addAction(settingAction);
+
+    save = new QAction(tr("&Save"));
+    save->setShortcut(QKeySequence("Ctrl+S"));
+    connect(save, SIGNAL(triggered()), this, SLOT(writeFiles()));
+    toolButtonMenu->addAction(save);
+
+    load = new QAction(tr("&Load"));
+    load->setShortcut(QKeySequence("Ctrl+O"));
+    connect(load, SIGNAL(triggered()), this, SLOT(loadFiles()));
+    toolButtonMenu->addAction(load);
 
     add = new QAction(tr("&Add"));
     add->setShortcut(QKeySequence("Ctrl+N"));
@@ -91,16 +101,21 @@ void MainPadNote::addTab()
 
 void MainPadNote::removeTab()
 {
-    if(tab->count()>1)
-        return tab->removeTab(tab->currentIndex());
-    close();
+    QString fileName = tab->tabText(tab->currentIndex());
+    tab->removeTab(tab->currentIndex());
+    delFiles(fileName+".qNP");
+    if(tab->count()<1)
+        addTab();
 }
-//OverLoaded Function
+
+//OverLoaded Function for perticular Tab Removal or Non-focused tab
 void MainPadNote::removeTab(int index)
 {
-    if(tab->count()>1)
-        return tab->removeTab(index);
-    close();
+    QString fileName = tab->tabText(tab->currentIndex());
+    tab->removeTab(index);
+    delFiles(fileName+".qNP");
+    if(tab->count()<1)
+        addTab();
 }
 
 void MainPadNote::renameTab(int index)
@@ -145,6 +160,72 @@ void MainPadNote::_settingDialog()
         tf->setFontSize(fontSize);
         tf->_setStyleSheet();
     }
+}
+
+void MainPadNote::writeFiles()
+{
+    for(auto i=0; i< tab->count(); i++)
+    {
+        tab->setCurrentIndex(i);
+        QFile file(QString(dir->homePath() + "/" + tab->tabText(tab->currentIndex())+".qNP"));
+        if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+            qDebug() << file.errorString();
+        QTextStream out(&file);
+        TextField *tf = static_cast<TextField*>(tab->currentWidget());
+        QString str = tf->toPlainText();
+        out << str;
+        file.close();
+    }
+}
+
+void MainPadNote::loadFiles()
+{
+    for(auto i=0; i<tab->count(); i++)
+    {
+        tab->setCurrentIndex(i);
+        QFile file(QString(dir->homePath() + "/" + tab->tabText(tab->currentIndex())+".qNP"));
+        if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            QMessageBox::warning(this, "Warning", file.errorString(), QMessageBox::Ok);
+        QTextStream in(&file);
+        TextField *tf = static_cast<TextField*>(tab->currentWidget());
+        QString str;
+        while(!file.atEnd())
+            str.append(file.readLine());
+        if(str=="")
+            return;
+        tf->setPlainText(str);
+        file.close();
+    }
+}
+
+void MainPadNote::initializeFile()
+{
+    dir = new QDir;
+    dir->setCurrent(dir->homePath());
+    dir->setNameFilters(QStringList() << "*.qNP");
+    QStringList list;
+    list << dir->entryList(QDir::Files, QDir::Name);
+    if(list.isEmpty())
+    {
+        tab->addTab(new TextField(fontSize), QString("tab 1"));
+        return;
+    }
+    int i = 0;
+    do{
+        tab->setCurrentIndex(i);
+        list[i].truncate(list[i].size()-4);
+        addTab();
+        tab->setTabText(i, list[i]);
+        i++;
+    }
+    while(i<list.count());
+    loadFiles();
+    tab->setCurrentIndex(0);
+}
+
+void MainPadNote::delFiles(const QString fileName)
+{
+    dir->remove(fileName);
 }
 
 MainPadNote::~MainPadNote()

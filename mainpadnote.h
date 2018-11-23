@@ -15,6 +15,9 @@
 #include<QSystemTrayIcon>
 #include<QTableWidget>
 #include<QInputDialog>
+#include<QTextStream>
+#include<QFile>
+#include<QDir>
 
 class MainPadNote : public QWidget
 {
@@ -31,14 +34,20 @@ private slots:
     void renameTab(int);
     void setLabel(int);
     void _settingDialog();
+    void writeFiles();
+    void loadFiles();
+    void initializeFile();
 
 private:
+    void delFiles(const QString fileName);
     void createNotificationMenu();
     void createToolButtonMenu();
     void configStyleSheet();
 
     int fontSize;
 
+    QString fileIO;
+    QDir *dir;
     QLabel *todo;
     QTabWidget *tab;
     QSystemTrayIcon *trayIcon;
@@ -47,6 +56,8 @@ private:
     QMenu *toolButtonMenu;
     QMenu *notificationMenu;
     QAction *settingAction;
+    QAction *save;
+    QAction *load;
     QAction *add;
     QAction *remove;
     QAction *exit;
