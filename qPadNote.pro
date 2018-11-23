@@ -26,14 +26,14 @@ CONFIG += c++11
 
 SOURCES += \
         main.cpp \
-        mainpannote.cpp \
     textfield.cpp \
-    settingdialog.cpp
+    settingdialog.cpp \
+    mainpadnote.cpp
 
 HEADERS += \
-        mainpannote.h \
     textfield.h \
-    settingdialog.h
+    settingdialog.h \
+    mainpadnote.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -1,6 +1,10 @@
 #ifndef TEXTFIELD_H
 #define TEXTFIELD_H
 #include<QPlainTextEdit>
+#include<QDebug>
+#include<QScrollBar>
+#include<QFile>
+
 
 class TextField : public QPlainTextEdit
 {
@@ -9,10 +13,13 @@ public:
     explicit TextField(int _fontSize, QWidget *parent = nullptr);
     QSize sizeHint() const;
     void _setStyleSheet();
+    void saveFile();
+    int fontSize;
+    void setFontSize(int _fontSize);
 
 private:
     QSize size;
-    int fontSize;
+    QFile *file;
 };
 
 #endif // TEXTFIELD_H
