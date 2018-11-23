@@ -6,11 +6,13 @@ class TextField : public QPlainTextEdit
 {
     Q_OBJECT
 public:
-    TextField(QSize s, QWidget *parent = nullptr);
+    explicit TextField(int _fontSize, QWidget *parent = nullptr);
     QSize sizeHint() const;
+    void _setStyleSheet();
 
 private:
     QSize size;
+    int fontSize;
 };
 
 #endif // TEXTFIELD_H
