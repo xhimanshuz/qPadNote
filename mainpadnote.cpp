@@ -95,7 +95,7 @@ void MainPadNote::aboutPN()
 
 void MainPadNote::addTab()
 {
-    tab->addTab(new TextField(fontSize), QString("tab %1").arg(tab->count()+1));
+    tab->addTab(new TextField(fontSize), QString("Task %1").arg(tab->count()+1));
     tab->setCurrentIndex(tab->count()-1);
 }
 
@@ -191,7 +191,7 @@ void MainPadNote::loadFiles()
         QString str;
         while(!file.atEnd())
             str.append(file.readLine());
-        if(str=="")
+        if(str == "")
             return;
         tf->setPlainText(str);
         file.close();
@@ -207,7 +207,7 @@ void MainPadNote::initializeFile()
     list << dir->entryList(QDir::Files, QDir::Name);
     if(list.isEmpty())
     {
-        tab->addTab(new TextField(fontSize), QString("tab 1"));
+        tab->addTab(new TextField(fontSize), QString("task 1"));
         return;
     }
     int i = 0;
@@ -230,5 +230,5 @@ void MainPadNote::delFiles(const QString fileName)
 
 MainPadNote::~MainPadNote()
 {
-
+    writeFiles();
 }
