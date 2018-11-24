@@ -3,6 +3,8 @@ compiler: gcc
 sudo: require
 dist: trusty
 
+os: linux
+
 before_install:
   - sudo add-apt-repository ppa:beineri/opt-qt593-trusty -y
   - sudo apt-get update -qq
