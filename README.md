@@ -6,7 +6,7 @@
 # Instruction
 Download x64 binary > https://github.com/xhimanshuz/qPadNote/releases
 ```shell
-chown a+x qPadNote-x86_64-v0.1-pre-alpha.AppImage && sudo ./qPadNote-x86_64-v0.1-pre-alpha.AppImage
+chmod a+x qPadNote-x86_64-v0.1-pre-alpha.AppImage && sudo ./qPadNote-x86_64-v0.1-pre-alpha.AppImage
 ```
 or Just Double Click an Run. (autorun at startup feature is to be added soon).
 # Build
