@@ -113,8 +113,6 @@ void MainPadNote::removeTab()
 //OverLoaded Function for perticular Tab Removal or Non-focused tab
 void MainPadNote::removeTab(int index)
 {
-    bool ok
-    QMessageBox::Warning("")
     QString fileName = tab->tabText(tab->currentIndex());
     tab->removeTab(index);
     delFiles(fileName+".qNP");
