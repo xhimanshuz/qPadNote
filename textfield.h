@@ -17,6 +17,12 @@ public:
     int fontSize;
     void setFontSize(int _fontSize);
 
+signals:
+    void focusOutSignal();
+
+protected:
+    void focusOutEvent(QFocusEvent *);
+
 private:
     QSize size;
     QFile *file;

@@ -26,6 +26,7 @@ class MainPadNote : public QWidget
 public:
     explicit MainPadNote(QRect screenSize, QWidget *parent = nullptr);
     ~MainPadNote();
+
 private slots:
     void aboutPN();
     void addTab();

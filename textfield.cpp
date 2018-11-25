@@ -22,3 +22,8 @@ void TextField::setFontSize(int _fontSize)
 {
     fontSize = _fontSize;
 }
+
+void TextField::focusOutEvent(QFocusEvent *)
+{
+    emit focusOutSignal();
+}

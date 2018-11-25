@@ -95,7 +95,9 @@ void MainPadNote::aboutPN()
 
 void MainPadNote::addTab()
 {
-    tab->addTab(new TextField(fontSize), QString("Task %1").arg(tab->count()+1));
+    TextField *tf = new TextField(fontSize);
+    connect(tf, &TextField::focusOutSignal, this, &MainPadNote::writeFiles);
+    tab->addTab(tf, QString("Task %1").arg(tab->count()+1));
     tab->setCurrentIndex(tab->count()-1);
 }
 
@@ -111,6 +113,8 @@ void MainPadNote::removeTab()
 //OverLoaded Function for perticular Tab Removal or Non-focused tab
 void MainPadNote::removeTab(int index)
 {
+    bool ok
+    QMessageBox::Warning("")
     QString fileName = tab->tabText(tab->currentIndex());
     tab->removeTab(index);
     delFiles(fileName+".qNP");
@@ -207,7 +211,9 @@ void MainPadNote::initializeFile()
     list << dir->entryList(QDir::Files, QDir::Name);
     if(list.isEmpty())
     {
-        tab->addTab(new TextField(fontSize), QString("task 1"));
+        TextField *tf = new TextField(fontSize);
+        connect(tf, &TextField::focusOutSignal, this, &MainPadNote::writeFiles);
+        tab->addTab(tf, QString("task 1"));
         return;
     }
     int i = 0;
