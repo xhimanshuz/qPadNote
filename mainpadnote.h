@@ -18,6 +18,9 @@
 #include<QTextStream>
 #include<QFile>
 #include<QDir>
+#include<QSqlDatabase>
+#include<QSqlQuery>
+#include<QSqlError>
 
 class MainPadNote : public QWidget
 {
@@ -35,15 +38,17 @@ private slots:
     void renameTab(int);
     void setLabel(int);
     void _settingDialog();
-    void writeFiles();
-    void loadFiles();
+
+    bool openDB();
+    void writeDB();
+    void loadDB();
     void initializeFile();
 
 private:
-    void delFiles(const QString fileName);
     void createNotificationMenu();
     void createToolButtonMenu();
     void configStyleSheet();
+    void errorMsg(const QString, const QString);
 
     int fontSize;
 
@@ -63,6 +68,10 @@ private:
     QAction *remove;
     QAction *exit;
     QAction *about;
+
+    QSqlDatabase *db;
+    QSqlQuery *query;
+    QString dbName;
 };
 
 #endif // MainPadNote_H
