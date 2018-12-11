@@ -2,12 +2,13 @@
 #include<QDebug>
 
 MainPadNote::MainPadNote(QRect screenSize, QWidget *parent)
-    : QWidget(parent), fontSize(15), dbName("qPN.db")
+    : QWidget(parent), fontSize(15), dbName("qPN.db"), appWidth(0)
 {
     setWindowFlags(Qt::Window | Qt::FramelessWindowHint);
     setWindowIcon(QIcon(":/clipboard.png"));
-
-    this->setGeometry(screenSize.width()-300, 0, 300, screenSize.height());
+    fontSize = static_cast<int>(screenSize.width()*0.01); // 10% of screen size
+    appWidth = static_cast<int>(screenSize.width()*0.20); //20% of Screen size
+    this->setGeometry(screenSize.width()-appWidth, 0, appWidth, screenSize.height());
     createToolButtonMenu();
     createNotificationMenu();
 
@@ -31,7 +32,7 @@ MainPadNote::MainPadNote(QRect screenSize, QWidget *parent)
     connect(tab, SIGNAL(tabCloseRequested(int)), this, SLOT(removeTab(int)));
     connect(tab, SIGNAL(currentChanged(int)), this, SLOT(setLabel(int)));
     tab->setMovable(true);
-    tab->setTabPosition(QTabWidget::North);
+    tab->setTabPosition(QTabWidget::South);
 
     QVBoxLayout *vbox = new QVBoxLayout();
     vbox->addLayout(hbox);
@@ -180,6 +181,7 @@ void MainPadNote::_settingDialog()
     SettingDialog *sd = new SettingDialog(fontSize, this);
     if(sd->exec() == QDialog::Accepted)
         fontSize = sd->fontSize;
+    int curIndex = tab->currentIndex();
     for(int i=0; i<tab->count(); i++)
     {
         tab->setCurrentIndex(i);
@@ -187,6 +189,7 @@ void MainPadNote::_settingDialog()
         tf->setFontSize(fontSize);
         tf->_setStyleSheet();
     }
+    tab->setCurrentIndex(curIndex);
 }
 
 bool MainPadNote::openDB()

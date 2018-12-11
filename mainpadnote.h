@@ -51,6 +51,7 @@ private:
     void errorMsg(const QString, const QString);
 
     int fontSize;
+    int appWidth;
 
     QString fileIO;
     QDir *dir;
