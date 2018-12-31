@@ -1,4 +1,4 @@
-#include "settingdialog.h"
+#include "includes/settingdialog.h"
 #include<QDebug>
 
 SettingDialog::SettingDialog(int _fontSize, QWidget *parent): QDialog(parent)

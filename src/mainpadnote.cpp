@@ -1,4 +1,4 @@
-#include "mainpadnote.h"
+#include "includes/mainpadnote.h"
 #include<QDebug>
 
 MainPadNote::MainPadNote(QRect screenSize, QWidget *parent)

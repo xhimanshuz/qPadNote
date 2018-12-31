@@ -24,20 +24,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 SOURCES += \
-        main.cpp \
-    textfield.cpp \
-    settingdialog.cpp \
-    mainpadnote.cpp
+        src/main.cpp \
+            src/textfield.cpp \
+                src/settingdialog.cpp \
+                    src/mainpadnote.cpp
 
-HEADERS += \
-    textfield.h \
-    settingdialog.h \
-    mainpadnote.h
+                    HEADERS += \
+                        src/includes/textfield.h \
+                            src/includes/settingdialog.h \
+                                src/includes/mainpadnote.h
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+                                # Default rules for deployment.
+                                qnx: target.path = /tmp/$${TARGET}/bin
+                                else: unix:!android: target.path = /opt/$${TARGET}/bin
+                                !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    res.qrc
+    src/media/res.qrc
