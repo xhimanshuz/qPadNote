@@ -1,1 +1,1 @@
-image: darkmattercoder/qt-build:latest
+docker pull rabits/qt
