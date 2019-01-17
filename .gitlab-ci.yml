@@ -8,8 +8,8 @@ stages:
     - push-latest
 
 variables:
-    DOCKER_IMAGE:        ${CI_REGISTRY_IMAGE}:${CI_BUILD_REF_NAME}
-    DOCKER_LATEST_IMAGE: ${CI_REGISTRY_IMAGE}:latest
+    DOCKER_IMAGE:        docker pull rabits/qt:${CI_BUILD_REF_NAME}
+    DOCKER_LATEST_IMAGE: rabits/qt:latest
 
 #
 # Make sure we are logged into the GitLab container registry for each script.
