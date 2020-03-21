@@ -1,8 +1,10 @@
 #include "TodoBlock.h"
 #include <QDebug>
 
-TodoBlock::TodoBlock(QWidget *parent) : QWidget(parent), showSub{true}
+TodoBlock::TodoBlock(QString title, QWidget *parent) : QWidget(parent), showSub{true}, title(title)
 {
+    id = QString::number(rand());
+    qDebug()<< id;
     mainLayout = new QVBoxLayout;
     renderUi();
     setLayout(mainLayout);
@@ -11,15 +13,22 @@ TodoBlock::TodoBlock(QWidget *parent) : QWidget(parent), showSub{true}
 void TodoBlock::renderUi()
 {
     dateLabel = new QLabel("<i>14.02.2020</i>");
-    titleCheckbox = new QCheckBox(tr("TITLE"));
+    titleCheckbox = new QCheckBox(title);
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->setMargin(2);
     hbox->addWidget(titleCheckbox, 1, Qt::AlignmentFlag::AlignLeft);
     hbox->addStretch();
-    hbox->addWidget(dateLabel, 0, Qt::AlignmentFlag::AlignRight);
-    mainLayout->addLayout(hbox);
 
+    hbox->addWidget(dateLabel, 0, Qt::AlignmentFlag::AlignRight);
+    deleteToolButton = new QToolButton;
+    connect(deleteToolButton, &QToolButton::clicked, [=]{
+        this->deleteBlock(this->id);
+    });
+    deleteToolButton->setIcon(QIcon(":/Data/Data/redDelete.png"));
+//    deleteToolButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
+    hbox->addWidget(deleteToolButton, 0, Qt::AlignmentFlag::AlignRight);
+    mainLayout->addLayout(hbox);
 
     QPushButton *showHideButton = new QPushButton("...");
     showHideButton->setCheckable(true);
@@ -31,24 +40,25 @@ void TodoBlock::renderUi()
         {
             subStringTE->hide();
         }
-//        qDebug()<< this->size().height()<< this->size().width();
 
     });
     mainLayout->addWidget(showHideButton);
 
     QGroupBox *gb = new QGroupBox("Substring");
-    subStringTE = new QTextEdit("Specifies the Qt modules that are used by your project. For the value to add for each module, see the module documentation.\n"
-                                 "At the C++ implementation level, using a Qt module makes its headers available for inclusion and causes it to be linked to the binary.");
+    subStringTE = new QTextEdit("");
     mainLayout->addWidget(subStringTE);
     subStringTE->hide();
 
-    this->setStyleSheet("background: white;");
-    this->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+//    this->setStyleSheet("background: white;");
+//    this->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     mainLayout->setMargin(0);
+
+    connectSignalSlot();
 }
 
-QSize TodoBlock::sizeHint() const
+void TodoBlock::connectSignalSlot()
 {
-    return QSize(300, 1);
+
 }
+
 
