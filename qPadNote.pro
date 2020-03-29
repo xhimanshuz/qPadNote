@@ -1,4 +1,5 @@
 QT += widgets
+CONFIG += c++11
 
 SOURCES += \
     Backend.cpp \
@@ -15,3 +16,5 @@ HEADERS += \
 
 RESOURCES += \
     ResourceFile.qrc
+
+DESTDIR = $$PWD\build\

@@ -59,7 +59,7 @@ void TodoBlock::setSubString(const QString subString)
 
 QString TodoBlock::getSubString()
 {
-    subStringTE->toPlainText();
+    return subStringTE->toPlainText();
 }
 
 void TodoBlock::connectSignalSlot()
