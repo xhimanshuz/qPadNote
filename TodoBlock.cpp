@@ -23,10 +23,8 @@ void TodoBlock::renderUi()
     hbox->addWidget(dateLabel, 0, Qt::AlignmentFlag::AlignRight);
     deleteToolButton = new QToolButton;
     connect(deleteToolButton, &QToolButton::clicked, [=]{
-//        this->deleteBlock(this->id);
     });
     deleteToolButton->setIcon(QIcon(":/Data/Data/redDelete.png"));
-//    deleteToolButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
     hbox->addWidget(deleteToolButton, 0, Qt::AlignmentFlag::AlignRight);
     mainLayout->addLayout(hbox);
 
@@ -49,8 +47,6 @@ void TodoBlock::renderUi()
     mainLayout->addWidget(subStringTE);
     subStringTE->hide();
 
-//    this->setStyleSheet("background: white;");
-//    this->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     mainLayout->setMargin(0);
 
     connectSignalSlot();

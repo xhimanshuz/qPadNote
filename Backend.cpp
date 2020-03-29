@@ -17,6 +17,7 @@ void Backend::renderUi()
     todoWindow = new TodoWindow("TODO", TodoBlockType::TODO, this);
     doneWindow = new TodoWindow("DONE", TodoBlockType::DONE, this);
 
+
     todoScrollArea->setWidget(todoWindow);
     todoScrollArea->setWidgetResizable(true);
     doneScrollArea->setWidget(doneWindow);

@@ -1,3 +1,4 @@
+
 #include "TodoWindow.h"
 #include "Backend.h"
 #include <QDebug>
@@ -13,13 +14,14 @@ TodoWindow::TodoWindow(QString title, TodoBlockType type, QObject *backend, QWid
     hbox->addWidget(titleLable, 0, Qt::AlignmentFlag::AlignTop);
     hbox->addStrut(1);
     mainLayout->addLayout(hbox);
-//    mainLayout->addStretch();
 
     addLineEdit = new QLineEdit;
     connect(addLineEdit, &QLineEdit::returnPressed, [=]{
-        addBlock(addLineEdit->text());
+        QString title = addLineEdit->text();
+        if(title.isEmpty())
+            return;
+        addBlock(title);
         addLineEdit->clear();
-        updateRender();
     });
 
     renderUi();
@@ -32,26 +34,19 @@ TodoWindow::TodoWindow(QString title, TodoBlockType type, QObject *backend, QWid
 
     this->setLayout(mainLayout);
     mainLayout->setMargin(0);
+
+    mapToBlockMap();
 }
 
 void TodoWindow::renderUi()
 {
-//    QVBoxLayout *renderUi = new QVBoxLayout;
-    QVBoxLayout *vbox = new QVBoxLayout;
-
-
     blockVBox = new QVBoxLayout;
     updateTodoBlocks();
     mainLayout->addLayout(blockVBox);
     mainLayout->addStretch(1);
 
-//    vbox->addStretch();
-
-//    mainLayout->addLayout(vbox);
-
     mainLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-//    mainLayout->addLayout(renderUi);
     connectSignalSlot();
 }
 
@@ -60,33 +55,35 @@ void TodoWindow::connectSignalSlot()
 
 }
 
-void TodoWindow::addBlock(QString title, QString subString, bool isToDone)
+void TodoWindow::addBlock(QString title, QString subString, bool isToDone, QString id)
 {
-//    auto todoBlock = new TodoBlock(title, QString::number(rand()), subString, isToDone, this);
-//    QString id = QString::number(rand());
-    QString id = QString::number(std::chrono::system_clock::now().time_since_epoch().count());
+    if(id == "")
+        id = QString::number(std::chrono::system_clock::now().time_since_epoch().count());
     TodoBlock *block = new TodoBlock(id, title, subString, isToDone, this);
     connect(block->titleCheckbox, &QCheckBox::toggled, [=](bool toggle){
         if(toggle)
             moveBlock(block->id, dataEngine->todoMap, dataEngine->toDoneMap, dataEngine->todoBlockMap, dataEngine->toDoneBlockMap);
         else
             moveBlock(block->id, dataEngine->toDoneMap, dataEngine->todoMap, dataEngine->toDoneBlockMap, dataEngine->todoBlockMap);
+        dataEngine->writeData();
     });
 
     if(type == TodoBlockType::TODO)
     {
-        dataEngine->todoMap->insert(block->id, QStringList()<< title<< subString<< ((isToDone)?"1":"0"));
-        dataEngine->todoBlockMap->insert(block->id, block);
-//        blockVBox->addWidget(block);
+        dataEngine->todoMap->insert(id, QStringList()<< title<< subString<< ((isToDone)?"1":"0")<< id);
+        dataEngine->todoBlockMap->insert(id, block);
+        blockVBox->addWidget(block);
     }
     else
     {
-        dataEngine->toDoneMap->insert(block->id, QStringList()<< title<< subString<< ((isToDone)?"1":"0"));
-        dataEngine->toDoneBlockMap->insert(block->id, new TodoBlock(id, title, subString, ((isToDone)?"1":"0"), this));
+        dataEngine->toDoneMap->insert(id, QStringList()<< title<< subString<< ((isToDone)?"1":"0")<<  id);
+        dataEngine->toDoneBlockMap->insert(id, block);
+        blockVBox->addWidget(block);
     }
-    updateRender();
+    dataEngine->writeData();
 }
 
+// Update the todoBlock and add to theri location either todo or done
 void TodoWindow::updateTodoBlocks()
 {
     if(type == TodoBlockType::TODO)
@@ -105,6 +102,7 @@ void TodoWindow::updateTodoBlocks()
     }
 }
 
+// Move todoBlock map to  map
 void TodoWindow::moveBlock(QString blockId, QMap<QString, QStringList> *from, QMap<QString, QStringList> *to, QMap<QString, TodoBlock *> *fromBlock, QMap<QString, TodoBlock *> *toBlock)
 {
     QStringList sList = from->value(blockId);
@@ -123,6 +121,32 @@ void TodoWindow::moveBlock(QString blockId, QMap<QString, QStringList> *from, QM
 bool TodoWindow::deleteBlock(QString id)
 {
     return false;
+}
+
+void TodoWindow::mapToBlockMap()
+{
+    if(type == TodoBlockType::TODO)
+    {
+        for(auto todo: *dataEngine->todoMap)
+        {
+            QString id = todo.at(3);
+            QString title = todo.at(0);
+            QString subString = todo.at(1);
+            bool isToDone = false;
+            addBlock(title, subString,isToDone, id);
+        }
+    }
+    else
+    {
+        for(auto toDone: *dataEngine->toDoneMap)
+        {
+            QString id = toDone.at(3);
+            QString title = toDone.at(0);
+            QString subString = toDone.at(1);
+            bool isToDone = true;
+            addBlock(title, subString, isToDone, id);
+        }
+    }
 }
 
 void TodoWindow::updateRender()

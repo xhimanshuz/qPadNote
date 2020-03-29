@@ -25,10 +25,11 @@ public:
     explicit TodoWindow(QString Title, TodoBlockType type, QObject *backend, QWidget *parent = nullptr);
     void renderUi();
     void connectSignalSlot();
-    void addBlock(QString title, QString subString = "", bool isToDone = false);
+    void addBlock(QString title, QString subString = "", bool isToDone = false, QString id = "");
     void updateTodoBlocks();
     void moveBlock(QString blockId, QMap<QString, QStringList> *from, QMap<QString, QStringList> *to, QMap<QString, TodoBlock*> *fromBlock, QMap<QString, TodoBlock*> *toBlock);
     bool deleteBlock(QString id);
+    void mapToBlockMap();
 
 protected:
 //    QSize sizeHint() const override;
