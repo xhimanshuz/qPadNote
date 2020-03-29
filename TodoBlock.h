@@ -18,12 +18,17 @@ class TodoBlock : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TodoBlock(QString tile, QWidget *parent = nullptr);
+    explicit TodoBlock(QString _id, QString _title, QString _subString, bool _isTodone = false, QWidget *parent = nullptr);
+
     void renderUi();
     QCheckBox *titleCheckbox;
     QString title;
     QString id;
+    QString subString;
+    bool isToDone;
 
+    void setSubString(const QString subString);
+    QString getSubString();
 protected:
 //    QSize sizeHint() const override;
 

@@ -1,9 +1,8 @@
 #include "TodoBlock.h"
 #include <QDebug>
 
-TodoBlock::TodoBlock(QString title, QWidget *parent) : QWidget(parent), showSub{true}, title(title)
+TodoBlock::TodoBlock(QString _id, QString _title, QString _subString, bool _toDone, QWidget *parent) : QWidget(parent), showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}
 {
-    id = QString::number(rand());
     qDebug()<< id;
     mainLayout = new QVBoxLayout;
     renderUi();
@@ -14,6 +13,7 @@ void TodoBlock::renderUi()
 {
     dateLabel = new QLabel("<i>14.02.2020</i>");
     titleCheckbox = new QCheckBox(title);
+    titleCheckbox->setChecked(isToDone);
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->setMargin(2);
@@ -23,7 +23,7 @@ void TodoBlock::renderUi()
     hbox->addWidget(dateLabel, 0, Qt::AlignmentFlag::AlignRight);
     deleteToolButton = new QToolButton;
     connect(deleteToolButton, &QToolButton::clicked, [=]{
-        this->deleteBlock(this->id);
+//        this->deleteBlock(this->id);
     });
     deleteToolButton->setIcon(QIcon(":/Data/Data/redDelete.png"));
 //    deleteToolButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
@@ -45,7 +45,7 @@ void TodoBlock::renderUi()
     mainLayout->addWidget(showHideButton);
 
     QGroupBox *gb = new QGroupBox("Substring");
-    subStringTE = new QTextEdit("");
+    subStringTE = new QTextEdit(subString);
     mainLayout->addWidget(subStringTE);
     subStringTE->hide();
 
@@ -54,6 +54,16 @@ void TodoBlock::renderUi()
     mainLayout->setMargin(0);
 
     connectSignalSlot();
+}
+
+void TodoBlock::setSubString(const QString subString)
+{
+    subStringTE->setPlainText(subString);
+}
+
+QString TodoBlock::getSubString()
+{
+    subStringTE->toPlainText();
 }
 
 void TodoBlock::connectSignalSlot()

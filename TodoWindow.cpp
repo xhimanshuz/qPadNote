@@ -1,139 +1,127 @@
 #include "TodoWindow.h"
 #include "Backend.h"
 #include <QDebug>
-#include <QRect>
-
-QVector<QPair<QString, TodoBlock*>> *TodoWindow::todoMap = new QVector<QPair<QString, TodoBlock*>>;
-QVector<QPair<QString, TodoBlock*>> *TodoWindow::todoneMap = new QVector<QPair<QString, TodoBlock*>>;
 
 TodoWindow::TodoWindow(QString title, TodoBlockType type, QObject *backend, QWidget *parent) : QWidget(parent), type(type), backend(backend)
 {
+    dataEngine = DataEngine::getInstance();
+
     mainLayout = new QVBoxLayout;
+
     QHBoxLayout *hbox = new QHBoxLayout;
     titleLable = new QLabel(tr("<h1> %0 </h1>").arg(title));
-    hbox->addWidget(titleLable);
+    hbox->addWidget(titleLable, 0, Qt::AlignmentFlag::AlignTop);
     hbox->addStrut(1);
     mainLayout->addLayout(hbox);
+//    mainLayout->addStretch();
+
+    addLineEdit = new QLineEdit;
+    connect(addLineEdit, &QLineEdit::returnPressed, [=]{
+        addBlock(addLineEdit->text());
+        addLineEdit->clear();
+        updateRender();
+    });
+
     renderUi();
+
+    if(type == TodoBlockType::TODO)
+    {
+        mainLayout->addStretch();
+        mainLayout->addWidget(addLineEdit, 1, Qt::AlignmentFlag::AlignBottom);
+    }
+
     this->setLayout(mainLayout);
     mainLayout->setMargin(0);
 }
 
 void TodoWindow::renderUi()
 {
+//    QVBoxLayout *renderUi = new QVBoxLayout;
     QVBoxLayout *vbox = new QVBoxLayout;
+
+
     blockVBox = new QVBoxLayout;
+    updateTodoBlocks();
+    mainLayout->addLayout(blockVBox);
+    mainLayout->addStretch(1);
 
-    vbox->addLayout(blockVBox);
-    vbox->addStretch();
-    addLineEdit = new QLineEdit;
+//    vbox->addStretch();
 
-    if(type == TodoBlockType::TODO)
-    {
-        vbox->addStretch();
-        vbox->addWidget(addLineEdit, 1, Qt::AlignmentFlag::AlignBottom);
-    }
-
-    mainLayout->addLayout(vbox);
+//    mainLayout->addLayout(vbox);
 
     mainLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
+//    mainLayout->addLayout(renderUi);
     connectSignalSlot();
 }
 
 void TodoWindow::connectSignalSlot()
 {
-    connect(addLineEdit, &QLineEdit::returnPressed, [=]{
-        addBlock(addLineEdit->text());
-        addLineEdit->clear();
-    });
+
 }
 
-void TodoWindow::addBlock(QString title)
+void TodoWindow::addBlock(QString title, QString subString, bool isToDone)
 {
+//    auto todoBlock = new TodoBlock(title, QString::number(rand()), subString, isToDone, this);
+//    QString id = QString::number(rand());
+    QString id = QString::number(std::chrono::system_clock::now().time_since_epoch().count());
+    TodoBlock *block = new TodoBlock(id, title, subString, isToDone, this);
+    connect(block->titleCheckbox, &QCheckBox::toggled, [=](bool toggle){
+        if(toggle)
+            moveBlock(block->id, dataEngine->todoMap, dataEngine->toDoneMap, dataEngine->todoBlockMap, dataEngine->toDoneBlockMap);
+        else
+            moveBlock(block->id, dataEngine->toDoneMap, dataEngine->todoMap, dataEngine->toDoneBlockMap, dataEngine->todoBlockMap);
+    });
+
     if(type == TodoBlockType::TODO)
     {
-        auto todoBlock = new TodoBlock(title, this);
-        connect(todoBlock, &TodoBlock::deleteBlock, [=](QString id){
-            if(deleteBlock(id))
-                qDebug()<<"Deleted"<< id;
-            else
-                qDebug()<<"Not Found"<< id;
-            updateRender();
-        });
-
-        connect(todoBlock->titleCheckbox, &QCheckBox::toggled, [=](bool toggle){
-            if(toggle)
-                moveBlock(todoBlock, todoMap, todoneMap);
-            else
-                moveBlock(todoBlock, todoneMap, todoMap);
-
-        });
-        QPair<QString, TodoBlock*> pair(QString(todoBlock->id), todoBlock);
-        todoMap->append(pair);
+        dataEngine->todoMap->insert(block->id, QStringList()<< title<< subString<< ((isToDone)?"1":"0"));
+        dataEngine->todoBlockMap->insert(block->id, block);
+//        blockVBox->addWidget(block);
     }
     else
     {
-        auto todoBlock = new TodoBlock(title);
-        todoBlock->titleCheckbox->setChecked(true);
-        connect(todoBlock->titleCheckbox, &QCheckBox::toggled, [=](bool toggle){
-            if(!toggle)
-                moveBlock(todoBlock, todoneMap, todoMap);
-            else
-                moveBlock(todoBlock, todoMap, todoneMap);
-        });
-        QPair<QString, TodoBlock*> pair(title, todoBlock);
-        todoneMap->append(pair);
+        dataEngine->toDoneMap->insert(block->id, QStringList()<< title<< subString<< ((isToDone)?"1":"0"));
+        dataEngine->toDoneBlockMap->insert(block->id, new TodoBlock(id, title, subString, ((isToDone)?"1":"0"), this));
     }
-    updateTodoBlocks();
+    updateRender();
 }
 
 void TodoWindow::updateTodoBlocks()
 {
     if(type == TodoBlockType::TODO)
     {
-        for(auto i=todoMap->begin(); i!=todoMap->end(); ++i)
+        for(auto i=dataEngine->todoBlockMap->begin(); i!=dataEngine->todoBlockMap->end(); ++i)
         {
-            blockVBox->addWidget(i->second);
+            blockVBox->addWidget(i.value());
         }
     }
     else
     {
-        for(auto i=todoneMap->begin(); i!=todoneMap->end(); ++i)
+        for(auto i=dataEngine->toDoneBlockMap->begin(); i!=dataEngine->toDoneBlockMap->end(); ++i)
         {
-            blockVBox->addWidget(i->second);
+            blockVBox->addWidget(i.value());
         }
     }
 }
 
-void TodoWindow::moveBlock(TodoBlock *block, QVector<QPair<QString, TodoBlock*>> *from, QVector<QPair<QString, TodoBlock*>> *to)
+void TodoWindow::moveBlock(QString blockId, QMap<QString, QStringList> *from, QMap<QString, QStringList> *to, QMap<QString, TodoBlock *> *fromBlock, QMap<QString, TodoBlock *> *toBlock)
 {
-    QPair<QString, TodoBlock*> pair(QString(block->id), block);
-    from->remove(from->indexOf(pair));
-    to->push_back(pair);
+    QStringList sList = from->value(blockId);
+    auto block = fromBlock->value(blockId);
+
+    block->id = QString::number(std::chrono::system_clock::now().time_since_epoch().count());
+    to->insert(block->id, sList);
+    toBlock->insert(block->id, block);
+
+    from->remove(blockId);
+    fromBlock->remove(blockId);
+
     updateRender();
 }
 
 bool TodoWindow::deleteBlock(QString id)
 {
-    for(auto i=todoMap->begin(); i!=todoMap->end(); ++i)
-    {
-        if(i->first == id)
-        {
-            todoMap->remove(todoMap->indexOf(*i));
-            i->second->deleteLater();
-            return true;
-        }
-    }
-    for(auto i=todoneMap->begin(); i!=todoneMap->end(); ++i)
-    {
-        if(i->first == id)
-        {
-            todoneMap->remove(todoMap->indexOf(*i));
-            i->second->deleteLater();
-            return true;
-        }
-    }
     return false;
 }
 
@@ -141,9 +129,3 @@ void TodoWindow::updateRender()
 {
     ((Backend*)this->backend)->updateTodoWindow();
 }
-
-//QSize TodoWindow::sizeHint() const
-//{
-//    return QSize(350, 1);
-//}
-

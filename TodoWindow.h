@@ -8,7 +8,7 @@
 #include <QLineEdit>
 #include <QLabel>
 
-
+#include "dataEngine.h"
 #include "TodoBlock.h"
 //#include "Backend.h"
 
@@ -25,9 +25,9 @@ public:
     explicit TodoWindow(QString Title, TodoBlockType type, QObject *backend, QWidget *parent = nullptr);
     void renderUi();
     void connectSignalSlot();
-    void addBlock(QString title);
+    void addBlock(QString title, QString subString = "", bool isToDone = false);
     void updateTodoBlocks();
-    void moveBlock(TodoBlock* block, QVector<QPair<QString, TodoBlock*>> *from, QVector<QPair<QString, TodoBlock*>> *to);
+    void moveBlock(QString blockId, QMap<QString, QStringList> *from, QMap<QString, QStringList> *to, QMap<QString, TodoBlock*> *fromBlock, QMap<QString, TodoBlock*> *toBlock);
     bool deleteBlock(QString id);
 
 protected:
@@ -40,12 +40,14 @@ private:
     QLineEdit *addLineEdit;
     QLabel *titleLable;
     QVBoxLayout *blockVBox;
+//    QWidget *blockList;
 
     TodoBlockType type;
     QObject *backend;
+    DataEngine *dataEngine;
 
-    static QVector<QPair<QString, TodoBlock*>> *todoMap;
-    static QVector<QPair<QString, TodoBlock*>> *todoneMap;
+//    static QVector<QPair<QString, TodoBlock*>> *todoMap;
+//    static QVector<QPair<QString, TodoBlock*>> *todoneMap;
 };
 
 #endif // TODOWINDOW_H
