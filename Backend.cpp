@@ -28,8 +28,8 @@ void Backend::renderUi()
 
 //    qDebug()<< screenSize.width()*.2;
     splitter->setGeometry((screenSize.width()-screenSize.width()*0.20), 0, screenSize.width()*0.20, screenSize.height());
-//    splitter->setStyleSheet("QWidget{background: black; border: 1px solid whilte;} QLabel{color: white;} QTextEdit{border: 1px solid white; color: white;} QLineEdit{border: 1px solid white; color: white;} QCheckBox{color: white;} QCheckbox::indicator{border: 3px solid blue;}"
-//                            "QPushButton{border: 1px solid white; border-radius: 5px; color: white}");
+    splitter->setStyleSheet("QWidget{background: black; border: 1px solid whilte;} QLabel{color: white;} QTextEdit{border: 1px solid white; color: white;} QLineEdit{border: 1px solid white; color: white;} QCheckBox{color: white;} QCheckbox::indicator{border: 3px solid blue;}"
+                            "QPushButton{border: 1px solid white; border-radius: 5px; color: white}");
     splitter->show();
 
 }
