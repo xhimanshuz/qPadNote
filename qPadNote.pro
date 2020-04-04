@@ -1,6 +1,8 @@
 QT += widgets
 CONFIG += c++11
 
+#QT_QPA_PLATFORM=wayland
+
 SOURCES += \
     Backend.cpp \
     TodoBlock.cpp \
@@ -17,4 +19,4 @@ HEADERS += \
 RESOURCES += \
     ResourceFile.qrc
 
-DESTDIR = $$PWD\build\
+DESTDIR = $$PWD/build/

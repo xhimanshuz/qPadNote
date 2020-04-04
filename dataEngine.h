@@ -11,7 +11,7 @@
 
 class DataEngine
 {
-    QString fileName;
+    std::string fileName;
 public:
     DataEngine();
 
@@ -21,13 +21,14 @@ public:
     void jsonToMap(QJsonObject jObj);
     void readData();
     void writeData();
+    void deleteBlock(std::string id);
 
     //<id, [title, subString, isTodo, id]>
-    QMap<QString, QStringList> *todoMap;
-    QMap<QString, QStringList> *toDoneMap;
+    std::map<std::string, std::array<std::string, 4>> *todoMap;
+    std::map<std::string, std::array<std::string, 4>> *toDoneMap;
 
-    QMap<QString, TodoBlock*> *todoBlockMap;
-    QMap<QString, TodoBlock*> *toDoneBlockMap;
+    std::map<std::string, TodoBlock*> *todoBlockMap;
+    std::map<std::string, TodoBlock*> *toDoneBlockMap;
 };
 
 #endif // DATAENGINE_H

@@ -3,14 +3,14 @@
 #include "Backend.h"
 #include <QDebug>
 
-TodoWindow::TodoWindow(QString title, TodoBlockType type, QObject *backend, QWidget *parent) : QWidget(parent), type(type), backend(backend)
+TodoWindow::TodoWindow(std::string title, TodoBlockType type, QObject *backend, QWidget *parent) : QWidget(parent), type(type), backend(backend)
 {
     dataEngine = DataEngine::getInstance();
 
     mainLayout = new QVBoxLayout;
 
     QHBoxLayout *hbox = new QHBoxLayout;
-    titleLable = new QLabel(tr("<h1> %0 </h1>").arg(title));
+    titleLable = new QLabel(tr("<h1> %0 </h1>").arg(title.c_str()));
     hbox->addWidget(titleLable, 0, Qt::AlignmentFlag::AlignTop);
     hbox->addStrut(1);
     mainLayout->addLayout(hbox);
@@ -20,7 +20,7 @@ TodoWindow::TodoWindow(QString title, TodoBlockType type, QObject *backend, QWid
         QString title = addLineEdit->text();
         if(title.isEmpty())
             return;
-        addBlock(title);
+        addBlock(title.toStdString());
         addLineEdit->clear();
     });
 
@@ -55,29 +55,24 @@ void TodoWindow::connectSignalSlot()
 
 }
 
-void TodoWindow::addBlock(QString title, QString subString, bool isToDone, QString id)
+void TodoWindow::addBlock(std::string title, std::string subString, bool isToDone, std::string id)
 {
     if(id == "")
-        id = QString::number(std::chrono::system_clock::now().time_since_epoch().count());
-    TodoBlock *block = new TodoBlock(id, title, subString, isToDone, this);
-    connect(block->titleCheckbox, &QCheckBox::toggled, [=](bool toggle){
-        if(toggle)
-            moveBlock(block->id, dataEngine->todoMap, dataEngine->toDoneMap, dataEngine->todoBlockMap, dataEngine->toDoneBlockMap);
-        else
-            moveBlock(block->id, dataEngine->toDoneMap, dataEngine->todoMap, dataEngine->toDoneBlockMap, dataEngine->todoBlockMap);
-        dataEngine->writeData();
-    });
+        id = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
+    TodoBlock *block = new TodoBlock(id.c_str(), title, subString, isToDone, this);
+    connect(block, &TodoBlock::moveBlock, [=](bool toggle, std::string id){ moveBlock(toggle, id); dataEngine->writeData(); });
+    connect(block, &TodoBlock::deleteBlock, this, [=](std::string id){ dataEngine->deleteBlock(id); });
 
     if(type == TodoBlockType::TODO)
     {
-        dataEngine->todoMap->insert(id, QStringList()<< title<< subString<< ((isToDone)?"1":"0")<< id);
-        dataEngine->todoBlockMap->insert(id, block);
+        dataEngine->todoMap->insert(std::pair<std::string, std::array<std::string, 4>>(id, { title, subString, ((isToDone)?"1":"0"), id}));
+        dataEngine->todoBlockMap->insert(std::make_pair(id, block));
         blockVBox->addWidget(block);
     }
     else
     {
-        dataEngine->toDoneMap->insert(id, QStringList()<< title<< subString<< ((isToDone)?"1":"0")<<  id);
-        dataEngine->toDoneBlockMap->insert(id, block);
+        dataEngine->toDoneMap->insert(std::pair<std::string, std::array<std::string, 4>>(id, { title, subString, ((isToDone)?"1":"0"), id}));
+        dataEngine->toDoneBlockMap->insert(std::make_pair(id, block));
         blockVBox->addWidget(block);
     }
     dataEngine->writeData();
@@ -90,37 +85,52 @@ void TodoWindow::updateTodoBlocks()
     {
         for(auto i=dataEngine->todoBlockMap->begin(); i!=dataEngine->todoBlockMap->end(); ++i)
         {
-            blockVBox->addWidget(i.value());
+            blockVBox->addWidget(i->second);
         }
     }
     else
     {
         for(auto i=dataEngine->toDoneBlockMap->begin(); i!=dataEngine->toDoneBlockMap->end(); ++i)
         {
-            blockVBox->addWidget(i.value());
+            blockVBox->addWidget(i->second);
         }
     }
 }
 
 // Move todoBlock map to  map
-void TodoWindow::moveBlock(QString blockId, QMap<QString, QStringList> *from, QMap<QString, QStringList> *to, QMap<QString, TodoBlock *> *fromBlock, QMap<QString, TodoBlock *> *toBlock)
+void TodoWindow::moveBlock(bool toggle, std::string blockId)
 {
-    QStringList sList = from->value(blockId);
-    auto block = fromBlock->value(blockId);
+    std::map<std::string, std::array<std::string, 4>> *from;
+    std::map<std::string, std::array<std::string, 4>> *to;
+    std::map<std::string, TodoBlock *> *fromBlock;
+    std::map<std::string, TodoBlock *> *toBlock;
 
-    block->id = QString::number(std::chrono::system_clock::now().time_since_epoch().count());
-    to->insert(block->id, sList);
-    toBlock->insert(block->id, block);
+    if(toggle)
+    {
+        from = dataEngine->todoMap;
+        to = dataEngine->toDoneMap;
+        fromBlock = dataEngine->todoBlockMap;
+        toBlock = dataEngine->toDoneBlockMap;
+    }
+    else
+    {
+        from = dataEngine->toDoneMap;
+        to = dataEngine->todoMap;
+        fromBlock = dataEngine->toDoneBlockMap;
+        toBlock = dataEngine->todoBlockMap;
+    }
 
-    from->remove(blockId);
-    fromBlock->remove(blockId);
+    auto it = from->find(blockId);
+    auto block = fromBlock->find(blockId.c_str());
+
+    block->second->id = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
+    to->insert(std::pair<std::string, std::array<std::string, 4>>(block->second->id, it->second));
+    toBlock->insert(std::make_pair(block->second->id, block->second));
+
+    from->erase(blockId);
+    fromBlock->erase(blockId);
 
     updateRender();
-}
-
-bool TodoWindow::deleteBlock(QString id)
-{
-    return false;
 }
 
 void TodoWindow::mapToBlockMap()
@@ -129,9 +139,9 @@ void TodoWindow::mapToBlockMap()
     {
         for(auto todo: *dataEngine->todoMap)
         {
-            QString id = todo.at(3);
-            QString title = todo.at(0);
-            QString subString = todo.at(1);
+            std::string id = todo.second.at(3);
+            std::string title = todo.second.at(0);
+            std::string subString = todo.second.at(1);
             bool isToDone = false;
             addBlock(title, subString,isToDone, id);
         }
@@ -140,9 +150,9 @@ void TodoWindow::mapToBlockMap()
     {
         for(auto toDone: *dataEngine->toDoneMap)
         {
-            QString id = toDone.at(3);
-            QString title = toDone.at(0);
-            QString subString = toDone.at(1);
+            std::string id = toDone.second.at(3);
+            std::string title = toDone.second.at(0);
+            std::string subString = toDone.second.at(1);
             bool isToDone = true;
             addBlock(title, subString, isToDone, id);
         }

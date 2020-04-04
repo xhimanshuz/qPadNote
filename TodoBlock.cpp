@@ -1,9 +1,9 @@
 #include "TodoBlock.h"
 #include <QDebug>
 
-TodoBlock::TodoBlock(QString _id, QString _title, QString _subString, bool _toDone, QWidget *parent) : QWidget(parent), showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}
+TodoBlock::TodoBlock(std::string _id, std::string _title, std::string _subString, bool _toDone, QWidget *parent) : QWidget(parent), showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}
 {
-    qDebug()<< id;
+    qDebug()<< id.c_str();
     mainLayout = new QVBoxLayout;
     renderUi();
     setLayout(mainLayout);
@@ -12,8 +12,9 @@ TodoBlock::TodoBlock(QString _id, QString _title, QString _subString, bool _toDo
 void TodoBlock::renderUi()
 {
     dateLabel = new QLabel("<i>14.02.2020</i>");
-    titleCheckbox = new QCheckBox(title);
+    titleCheckbox = new QCheckBox(title.c_str());
     titleCheckbox->setChecked(isToDone);
+    connect(titleCheckbox, &QCheckBox::toggled, [=](bool toggle){ moveBlock(toggle, id); });
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->setMargin(2);
@@ -22,8 +23,7 @@ void TodoBlock::renderUi()
 
     hbox->addWidget(dateLabel, 0, Qt::AlignmentFlag::AlignRight);
     deleteToolButton = new QToolButton;
-    connect(deleteToolButton, &QToolButton::clicked, [=]{
-    });
+    connect(deleteToolButton, &QToolButton::clicked, this, [=]{ emit deleteBlock(id); });
     deleteToolButton->setIcon(QIcon(":/Data/Data/redDelete.png"));
     hbox->addWidget(deleteToolButton, 0, Qt::AlignmentFlag::AlignRight);
     mainLayout->addLayout(hbox);
@@ -38,12 +38,10 @@ void TodoBlock::renderUi()
         {
             subStringTE->hide();
         }
-
     });
     mainLayout->addWidget(showHideButton);
 
-    QGroupBox *gb = new QGroupBox("Substring");
-    subStringTE = new QTextEdit(subString);
+    subStringTE = new QTextEdit(subString.c_str());
     mainLayout->addWidget(subStringTE);
     subStringTE->hide();
 
@@ -52,14 +50,14 @@ void TodoBlock::renderUi()
     connectSignalSlot();
 }
 
-void TodoBlock::setSubString(const QString subString)
+void TodoBlock::setSubString(const std::string subString)
 {
-    subStringTE->setPlainText(subString);
+    subStringTE->setPlainText(subString.c_str());
 }
 
-QString TodoBlock::getSubString()
+std::string TodoBlock::getSubString()
 {
-    return subStringTE->toPlainText();
+    return subStringTE->toPlainText().toStdString();
 }
 
 void TodoBlock::connectSignalSlot()

@@ -7,28 +7,23 @@
 #include <QScrollArea>
 #include <QLineEdit>
 #include <QLabel>
+#include <QAction>
 
-#include "dataEngine.h"
 #include "TodoBlock.h"
-//#include "Backend.h"
+#include "dataEngine.h"
 
-enum class TodoBlockType
-{
-    TODO,
-    DONE
-};
+//#include "Backend.h"
 
 class TodoWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TodoWindow(QString Title, TodoBlockType type, QObject *backend, QWidget *parent = nullptr);
+    explicit TodoWindow(std::string Title, TodoBlockType type, QObject *backend, QWidget *parent = nullptr);
     void renderUi();
     void connectSignalSlot();
-    void addBlock(QString title, QString subString = "", bool isToDone = false, QString id = "");
+    void addBlock(std::string title, std::string subString = "", bool isToDone = false, std::string id = "");
     void updateTodoBlocks();
-    void moveBlock(QString blockId, QMap<QString, QStringList> *from, QMap<QString, QStringList> *to, QMap<QString, TodoBlock*> *fromBlock, QMap<QString, TodoBlock*> *toBlock);
-    bool deleteBlock(QString id);
+    void moveBlock(bool toggle, std::string blockId);
     void mapToBlockMap();
 
 protected:
