@@ -34,3 +34,5 @@
 #Qt User Setting
 *.user
 
+qPadNote.pro.*
+Makefile
