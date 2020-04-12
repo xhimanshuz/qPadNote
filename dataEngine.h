@@ -2,6 +2,7 @@
 #define DATAENGINE_H
 
 #include "TodoBlock.h"
+#include "NetworkEngine.h"
 
 #include <QMap>
 #include <QJsonDocument>
@@ -14,7 +15,7 @@ class DataEngine
     std::string fileName;
 public:
     DataEngine();
-
+    ~DataEngine();
     static DataEngine *instance;
     static DataEngine *getInstance();
     QJsonDocument mapToJson();
@@ -29,6 +30,8 @@ public:
 
     std::map<std::string, TodoBlock*> *todoBlockMap;
     std::map<std::string, TodoBlock*> *toDoneBlockMap;
+
+    NetworkEngine *networkEngine;
 };
 
 #endif // DATAENGINE_H

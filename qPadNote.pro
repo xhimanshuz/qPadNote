@@ -1,4 +1,4 @@
-QT += widgets
+QT += widgets network
 CONFIG += c++11
 
 #QT_QPA_PLATFORM=wayland
@@ -8,13 +8,16 @@ SOURCES += \
     TodoBlock.cpp \
     TodoWindow.cpp \
     dataEngine.cpp \
-    qPadNote.cpp
+    qPadNote.cpp \
+    NetworkEngine.cpp
 
 HEADERS += \
     Backend.h \
     TodoBlock.h \
     TodoWindow.h \
-    dataEngine.h
+    data.h \
+    dataEngine.h \
+    NetworkEngine.h
 
 RESOURCES += \
     ResourceFile.qrc

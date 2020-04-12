@@ -9,9 +9,17 @@ DataEngine::DataEngine(): fileName{"setting.json"}
     toDoneMap = new std::map<std::string, std::array<std::string, 4>>;
     todoBlockMap = new std::map<std::string, TodoBlock*>;
     toDoneBlockMap = new std::map<std::string, TodoBlock*>;
+    networkEngine = new NetworkEngine;
 
     readData();
 }
+
+DataEngine::~DataEngine()
+{
+    delete networkEngine;
+}
+
+
 
 DataEngine* DataEngine::getInstance()
 {
@@ -49,6 +57,7 @@ QJsonDocument DataEngine::mapToJson()
     }
     mainJ.insert("toDone", toDoneJ);
 
+    networkEngine->writeJson(mainJ);
     return QJsonDocument(mainJ);
 }
 
@@ -78,6 +87,13 @@ void DataEngine::jsonToMap(QJsonObject jObj)
 
 void DataEngine::readData()
 {
+    auto json = networkEngine->requestJson("12345");
+    if(json.size() > 0)
+    {
+        jsonToMap(json);
+        return;
+    }
+
     QFile file(fileName.c_str());
     if(!file.open(QFile::ReadOnly))
     {
@@ -87,7 +103,6 @@ void DataEngine::readData()
 
     QJsonDocument jDoc = QJsonDocument::fromJson(file.readAll());
     file.close();
-
     jsonToMap(jDoc.object());
 }
 

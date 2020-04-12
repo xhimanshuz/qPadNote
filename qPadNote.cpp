@@ -7,7 +7,8 @@
 int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
-    Backend b(QApplication::desktop()->screenGeometry(),&app);
+    Backend b(QApplication::desktop()->screenGeometry());
+    b.show();
 
     return app.exec();
 }

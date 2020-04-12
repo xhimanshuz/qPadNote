@@ -1,17 +1,19 @@
 #ifndef BACKEND_H
 #define BACKEND_H
 
-#include <QObject>
-#include "TodoWindow.h"
-#include "TodoBlock.h"
+#include <QWidget>
 #include <QSplitter>
 #include <QRect>
 
-class Backend : public QObject
+#include "TodoWindow.h"
+#include "TodoBlock.h"
+
+class Backend : public QWidget
 {
     Q_OBJECT
 public:
-    explicit Backend(QRect screen, QObject *parent = nullptr);
+    explicit Backend(QRect screen, QWidget *parent = nullptr);
+    ~Backend();
     void renderUi();
     void updateTodoWindow();
     TodoWindow *todoWindow;

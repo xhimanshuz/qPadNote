@@ -6,7 +6,6 @@
 TodoWindow::TodoWindow(std::string title, TodoBlockType type, QObject *backend, QWidget *parent) : QWidget(parent), type(type), backend(backend)
 {
     dataEngine = DataEngine::getInstance();
-
     mainLayout = new QVBoxLayout;
 
     QHBoxLayout *hbox = new QHBoxLayout;
@@ -21,6 +20,7 @@ TodoWindow::TodoWindow(std::string title, TodoBlockType type, QObject *backend, 
         if(title.isEmpty())
             return;
         addBlock(title.toStdString());
+        dataEngine->writeData();
         addLineEdit->clear();
     });
 
@@ -36,6 +36,11 @@ TodoWindow::TodoWindow(std::string title, TodoBlockType type, QObject *backend, 
     mainLayout->setMargin(0);
 
     mapToBlockMap();
+}
+
+TodoWindow::~TodoWindow()
+{
+    delete dataEngine;
 }
 
 void TodoWindow::renderUi()
@@ -75,7 +80,7 @@ void TodoWindow::addBlock(std::string title, std::string subString, bool isToDon
         dataEngine->toDoneBlockMap->insert(std::make_pair(id, block));
         blockVBox->addWidget(block);
     }
-    dataEngine->writeData();
+//    dataEngine->writeData();
 }
 
 // Update the todoBlock and add to theri location either todo or done

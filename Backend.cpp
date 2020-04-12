@@ -3,9 +3,16 @@
 #include <QScrollArea>
 #include <QDebug>
 
-Backend::Backend(QRect screen, QObject *parent) : QObject(parent), screenSize(screen)
+Backend::Backend(QRect screen, QWidget *parent) : QWidget(parent), screenSize(screen)
 {
+    mainLayout = new QVBoxLayout;
     renderUi();
+    setLayout(mainLayout);
+}
+
+Backend::~Backend()
+{
+    auto k = 5;
 }
 
 void Backend::renderUi()
@@ -27,10 +34,13 @@ void Backend::renderUi()
     splitter->addWidget(doneScrollArea);
 
 //    qDebug()<< screenSize.width()*.2;
-    splitter->setGeometry((screenSize.width()-screenSize.width()*0.20), 0, screenSize.width()*0.20, screenSize.height());
+    this->setGeometry((screenSize.width()-screenSize.width()*0.20), 0, screenSize.width()*0.20, screenSize.height());
 //    splitter->setStyleSheet("QWidget{background: black; border: 1px solid whilte;} QLabel{color: white;} QTextEdit{border: 1px solid white; color: white;} QLineEdit{border: 1px solid white; color: white;} QCheckBox{color: white;} QCheckbox::indicator{border: 3px solid blue;}"
 //                            "QPushButton{border: 1px solid white; border-radius: 5px; color: white}");
-    splitter->show();
+//    splitter->show();
+    mainLayout->addWidget(splitter);
+
+    splitter->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus);
 
 }
 

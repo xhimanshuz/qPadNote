@@ -12,6 +12,7 @@
 #include <QCheckBox>
 #include <QToolButton>
 #include <random>
+#include <ctime>
 
 enum class TodoBlockType
 {
@@ -51,6 +52,7 @@ private:
     QTextEdit *subStringTE;
     int closeSize;
     bool showSub;
+    const std::string createdTime;
 };
 
 #endif // TODOBLOCK_H

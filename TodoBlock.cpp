@@ -1,9 +1,9 @@
 #include "TodoBlock.h"
-#include <QDebug>
+#include <iostream>
 
 TodoBlock::TodoBlock(std::string _id, std::string _title, std::string _subString, bool _toDone, QWidget *parent) : QWidget(parent), showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}
 {
-    qDebug()<< id.c_str();
+    std::cout<< id<<std::endl;
     mainLayout = new QVBoxLayout;
     renderUi();
     setLayout(mainLayout);
@@ -11,7 +11,9 @@ TodoBlock::TodoBlock(std::string _id, std::string _title, std::string _subString
 
 void TodoBlock::renderUi()
 {
-    dateLabel = new QLabel("<i>14.02.2020</i>");
+    const long time = atoll(std::string(id, 0, 10).c_str());
+
+    dateLabel = new QLabel(tr("<i>%0</i>").arg(ctime(&time)));
     titleCheckbox = new QCheckBox(title.c_str());
     titleCheckbox->setChecked(isToDone);
     connect(titleCheckbox, &QCheckBox::toggled, [=](bool toggle){ moveBlock(toggle, id); });
