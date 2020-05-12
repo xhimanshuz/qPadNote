@@ -4,7 +4,7 @@
 
 NetworkEngine::NetworkEngine(QObject *parent) : QObject(parent)
 {
-    socket.connectToHost("127.0.0.1", 8001);
+    socket.connectToHost("localhost", 8001);
 }
 
 NetworkEngine::~NetworkEngine()
@@ -18,15 +18,16 @@ QJsonObject NetworkEngine::requestJson(QString id)
     socket.write(id.toUtf8());
     socket.waitForBytesWritten();
     QString s;
-    socket.waitForReadyRead();
-    qDebug()<<"Waiting to read";
-    auto read = socket.readAll();
-    QJsonDocument jdoc = QJsonDocument::fromJson(read);
-    auto responseJson = jdoc.object();
-    if(responseJson.value("response").toVariant().toBool())
-        return responseJson.value("json").toObject();
+    connect(&socket, &QTcpSocket::readyRead, [&]{
+        qDebug()<<"Waiting to read";
+//        socket.waitForReadyRead();
+        auto read = socket.readAll();
+        QJsonDocument jdoc = QJsonDocument::fromJson(read);
+        auto responseJson = jdoc.object();
+        if(responseJson.value("response").toVariant().toBool())
+            emit jsonReceived(responseJson.value("json").toObject());
+    });
     return QJsonObject();
-
 }
 
 void NetworkEngine::writeJson(QJsonObject obj)

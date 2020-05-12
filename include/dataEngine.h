@@ -10,6 +10,8 @@
 #include <QFile>
 #include <QDir>
 
+class TodoWindow;
+
 class DataEngine
 {
     std::string fileName;
@@ -23,6 +25,7 @@ public:
     void readData();
     void writeData();
     void deleteBlock(std::string id);
+    void updateMap();
 
     //<id, [title, subString, isTodo, id]>
     std::map<std::string, std::array<std::string, 4>> *todoMap;
@@ -32,6 +35,11 @@ public:
     std::map<std::string, TodoBlock*> *toDoneBlockMap;
 
     NetworkEngine *networkEngine;
+    bool received;
+
+    TodoWindow *todo;
+    TodoWindow *toDone;
+
 };
 
 #endif // DATAENGINE_H

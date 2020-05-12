@@ -1,12 +1,14 @@
 HEADERS += \
-    cloudSession.h \
-    cloudserverengine.h \
-    data.h
+    include/cloudSession.h \
+    include/cloudserverengine.h \
+    include/data.h
 
 SOURCES += \
-    Run.cpp \
-    cloudSession.cpp \
-    cloudserverengine.cpp
+    src/Run.cpp \
+    src/cloudSession.cpp \
+    src/cloudserverengine.cpp
+
+INCLUDEPATH += include
 
 LIBS += -lpthread
 

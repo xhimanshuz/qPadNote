@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>redDelete.png</file>
+    </qresource>
+</RCC>

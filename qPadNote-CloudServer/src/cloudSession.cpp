@@ -1,4 +1,5 @@
 #include "cloudSession.h"
+using namespace std::literals::chrono_literals;
 
 CloudSession::CloudSession(boost::asio::ip::tcp::socket _socket): socket(std::move(_socket))
 {
@@ -19,6 +20,7 @@ void CloudSession::readRequestType()
     socket.read_some(boost::asio::buffer(&rType, 1));
     std::cout<<"Request Read Type: "<< rType[0]<<std::endl;
     std::string json;
+    std::this_thread::sleep_for(10s);
     switch (rType[0])
     {
     case REQUEST_TYPE::Read:

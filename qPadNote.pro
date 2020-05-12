@@ -4,22 +4,24 @@ CONFIG += c++11
 #QT_QPA_PLATFORM=wayland
 
 SOURCES += \
-    Backend.cpp \
-    TodoBlock.cpp \
-    TodoWindow.cpp \
-    dataEngine.cpp \
-    qPadNote.cpp \
-    NetworkEngine.cpp
+    src/Backend.cpp \
+    src/TodoBlock.cpp \
+    src/TodoWindow.cpp \
+    src/dataEngine.cpp \
+    src/qPadNote.cpp \
+    src/NetworkEngine.cpp
 
 HEADERS += \
-    Backend.h \
-    TodoBlock.h \
-    TodoWindow.h \
-    data.h \
-    dataEngine.h \
-    NetworkEngine.h
+    include/Backend.h \
+    include/TodoBlock.h \
+    include/TodoWindow.h \
+    include/data.h \
+    include/dataEngine.h \
+    include/NetworkEngine.h
+
+INCLUDEPATH += include
 
 RESOURCES += \
-    ResourceFile.qrc
+    Data/ResourceFile.qrc
 
 DESTDIR = $$PWD/build/

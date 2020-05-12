@@ -3,7 +3,7 @@
 
 DataEngine* DataEngine::instance = nullptr;
 
-DataEngine::DataEngine(): fileName{"setting.json"}
+DataEngine::DataEngine(): fileName{"setting.json"}, received(false)
 {
     todoMap = new std::map<std::string, std::array<std::string, 4>>;
     toDoneMap = new std::map<std::string, std::array<std::string, 4>>;
@@ -16,7 +16,7 @@ DataEngine::DataEngine(): fileName{"setting.json"}
 
 DataEngine::~DataEngine()
 {
-    delete networkEngine;
+//    delete networkEngine;
 }
 
 
@@ -41,7 +41,6 @@ QJsonDocument DataEngine::mapToJson()
         block.insert("isTodo", false);
         block.insert("id", todo.second.at(3).c_str());
         todoJ.insert(todo.second.at(3).c_str(), block);
-
     }
     mainJ.insert("todo", todoJ);
 
@@ -57,7 +56,7 @@ QJsonDocument DataEngine::mapToJson()
     }
     mainJ.insert("toDone", toDoneJ);
 
-    networkEngine->writeJson(mainJ);
+//    networkEngine->writeJson(mainJ);
     return QJsonDocument(mainJ);
 }
 
@@ -87,12 +86,18 @@ void DataEngine::jsonToMap(QJsonObject jObj)
 
 void DataEngine::readData()
 {
-    auto json = networkEngine->requestJson("12345");
-    if(json.size() > 0)
-    {
-        jsonToMap(json);
-        return;
-    }
+//    auto json = networkEngine->requestJson("12345");
+//    QObject::connect(networkEngine, &NetworkEngine::jsonReceived, [this](QJsonObject jObj){
+//            jsonToMap(jObj);
+//            received = true;
+//    });
+
+
+//    if(json.size() > 0)
+//    {
+//        jsonToMap(json);
+//        return;
+//    }
 
     QFile file(fileName.c_str());
     if(!file.open(QFile::ReadOnly))
@@ -115,6 +120,7 @@ void DataEngine::writeData()
         return;
     }
 
+    updateMap();
     file.write(mapToJson().toJson());
     file.close();
 }
@@ -136,4 +142,23 @@ void DataEngine::deleteBlock(std::string id)
         toDoneBlockMap->erase(id);
     }
     writeData();
+}
+
+void DataEngine::updateMap()
+{
+    for(auto &todoBlock: *todoBlockMap)
+    {
+        todoMap->at(todoBlock.first).at(0) = todoBlock.second->title;
+        todoMap->at(todoBlock.first).at(1) = todoBlock.second->getSubString();
+        todoMap->at(todoBlock.first).at(2) = "0";
+        todoMap->at(todoBlock.first).at(3) = todoBlock.second->id;
+    }
+    for(auto &toDoneBlock: *toDoneBlockMap)
+    {
+        toDoneMap->at(toDoneBlock.first).at(0) = toDoneBlock.second->title;
+        toDoneMap->at(toDoneBlock.first).at(1) = toDoneBlock.second->getSubString();
+        toDoneMap->at(toDoneBlock.first).at(2) = "1";
+        toDoneMap->at(toDoneBlock.first).at(3) = toDoneBlock.second->id;
+    }
+
 }

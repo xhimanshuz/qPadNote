@@ -20,6 +20,7 @@ TodoWindow::TodoWindow(std::string title, TodoBlockType type, QObject *backend, 
         if(title.isEmpty())
             return;
         addBlock(title.toStdString());
+
         dataEngine->writeData();
         addLineEdit->clear();
     });
@@ -30,12 +31,31 @@ TodoWindow::TodoWindow(std::string title, TodoBlockType type, QObject *backend, 
     {
         mainLayout->addStretch();
         mainLayout->addWidget(addLineEdit, 1, Qt::AlignmentFlag::AlignBottom);
+        dataEngine->todo = this;
+        std::thread([&]{
+            while(true)
+            {
+                if(dataEngine->received)
+                {
+                    qDebug()<<"Received!!";
+                    dataEngine->todo->mapToBlockMap();
+                    dataEngine->toDone->mapToBlockMap();
+                    updateRender();
+                    dataEngine->received = false;
+                }
+
+                std::this_thread::sleep_for(std::chrono::seconds(2));
+            }
+        }).detach();
     }
+    else
+        dataEngine->toDone = this;
 
     this->setLayout(mainLayout);
     mainLayout->setMargin(0);
 
     mapToBlockMap();
+
 }
 
 TodoWindow::~TodoWindow()

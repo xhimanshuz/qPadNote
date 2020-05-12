@@ -3,6 +3,7 @@
 
 TodoBlock::TodoBlock(std::string _id, std::string _title, std::string _subString, bool _toDone, QWidget *parent) : QWidget(parent), showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}
 {
+    this->setParent(parent);
     std::cout<< id<<std::endl;
     mainLayout = new QVBoxLayout;
     renderUi();
@@ -26,12 +27,15 @@ void TodoBlock::renderUi()
     hbox->addWidget(dateLabel, 0, Qt::AlignmentFlag::AlignRight);
     deleteToolButton = new QToolButton;
     connect(deleteToolButton, &QToolButton::clicked, this, [=]{ emit deleteBlock(id); });
-    deleteToolButton->setIcon(QIcon(":/Data/Data/redDelete.png"));
+    deleteToolButton->setIcon(QIcon("://redDelete.png"));
     hbox->addWidget(deleteToolButton, 0, Qt::AlignmentFlag::AlignRight);
     mainLayout->addLayout(hbox);
 
     QPushButton *showHideButton = new QPushButton("...");
     showHideButton->setCheckable(true);
+    mainLayout->addWidget(showHideButton);
+
+    subStringTE = new QTextEdit(subString.c_str());
     connect(showHideButton, &QPushButton::toggled, [=](bool toggle){
         showSub = toggle;
         if(showSub)
@@ -41,9 +45,6 @@ void TodoBlock::renderUi()
             subStringTE->hide();
         }
     });
-    mainLayout->addWidget(showHideButton);
-
-    subStringTE = new QTextEdit(subString.c_str());
     mainLayout->addWidget(subStringTE);
     subStringTE->hide();
 

@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QSplitter>
 #include <QRect>
+#include <QMouseEvent>
 
 #include "TodoWindow.h"
 #include "TodoBlock.h"
@@ -18,6 +19,9 @@ public:
     void updateTodoWindow();
     TodoWindow *todoWindow;
     TodoWindow *doneWindow;
+
+protected:
+    void leaveEvent(QEvent *event) override;
 
 private:
     QVBoxLayout *mainLayout;

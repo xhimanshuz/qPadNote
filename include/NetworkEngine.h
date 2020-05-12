@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QTcpSocket>
+#include <QNetworkReply>
 
 #include "data.h"
 
@@ -18,6 +19,9 @@ public:
     QJsonObject requestJson(QString id);
     void writeJson(QJsonObject obj);
     QTcpSocket socket;
+signals:
+    void jsonReceived(QJsonObject jobj);
+
 };
 
 #endif // NETWORKENGINE_H

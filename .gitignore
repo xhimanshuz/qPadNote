@@ -36,3 +36,5 @@
 
 qPadNote.pro.*
 Makefile
+
+build-*

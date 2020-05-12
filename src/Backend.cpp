@@ -6,13 +6,14 @@
 Backend::Backend(QRect screen, QWidget *parent) : QWidget(parent), screenSize(screen)
 {
     mainLayout = new QVBoxLayout;
+    setMouseTracking(true);
     renderUi();
     setLayout(mainLayout);
 }
 
 Backend::~Backend()
 {
-    auto k = 5;
+
 }
 
 void Backend::renderUi()
@@ -40,7 +41,7 @@ void Backend::renderUi()
 //    splitter->show();
     mainLayout->addWidget(splitter);
 
-    splitter->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus);
+//    splitter->setWindowFlags(Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus);
 
 }
 
@@ -49,3 +50,10 @@ void Backend::updateTodoWindow()
     doneWindow->updateTodoBlocks();
     todoWindow->updateTodoBlocks();
 }
+
+void Backend::leaveEvent(QEvent *event)
+{
+    event->accept();
+    DataEngine::getInstance()->writeData();
+;}
+
