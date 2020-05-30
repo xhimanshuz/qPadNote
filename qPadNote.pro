@@ -24,4 +24,7 @@ INCLUDEPATH += include
 RESOURCES += \
     Data/ResourceFile.qrc
 
-DESTDIR = $$PWD/build/
+DESTDIR = $$PWD/build/ \
+        $$PWD/Data/
+
+DISTFILES = $$PWD/Data/sampleConfig.json

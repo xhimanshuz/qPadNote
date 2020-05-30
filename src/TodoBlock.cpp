@@ -1,10 +1,8 @@
 #include "TodoBlock.h"
-#include <iostream>
 
 TodoBlock::TodoBlock(std::string _id, std::string _title, std::string _subString, bool _toDone, QWidget *parent) : QWidget(parent), showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}
 {
     this->setParent(parent);
-    std::cout<< id<<std::endl;
     mainLayout = new QVBoxLayout;
     renderUi();
     setLayout(mainLayout);
@@ -16,6 +14,10 @@ void TodoBlock::renderUi()
 
     dateLabel = new QLabel(tr("<i>%0</i>").arg(ctime(&time)));
     titleCheckbox = new QCheckBox(title.c_str());
+//    QFont f;
+//    f.setBold(true);
+//    titleCheckbox->setFont(QFont("", 10, QFont::Bold));
+//    titleCheckbox->setStyleSheet("QCheckBox { color: red }");
     titleCheckbox->setChecked(isToDone);
     connect(titleCheckbox, &QCheckBox::toggled, [=](bool toggle){ moveBlock(toggle, id); });
 

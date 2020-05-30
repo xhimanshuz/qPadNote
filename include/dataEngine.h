@@ -14,31 +14,26 @@ class TodoWindow;
 
 class DataEngine
 {
+    void jsonToMap(QJsonObject jObj);
+    QJsonObject readData();
+    QJsonDocument mapToJson();
+
+
     std::string fileName;
+    NetworkEngine *networkEngine;
 public:
     DataEngine();
     ~DataEngine();
-    static DataEngine *instance;
-    static DataEngine *getInstance();
-    QJsonDocument mapToJson();
-    void jsonToMap(QJsonObject jObj);
-    void readData();
     void writeData();
-    void deleteBlock(std::string id);
-    void updateMap();
+    void deleteBlock(std::string id, const std::string tabName);
+    void createTabMap(const std::string& tabName);
+    void removeTabMap(const std::string& tabName);
 
-    //<id, [title, subString, isTodo, id]>
-    std::map<std::string, std::array<std::string, 4>> *todoMap;
-    std::map<std::string, std::array<std::string, 4>> *toDoneMap;
+    std::shared_ptr<std::map<std::string, std::pair<std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>, std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>>>> tabMap;
+    std::shared_ptr<std::map<std::string, std::pair< std::shared_ptr<std::map<std::string, TodoBlock*>>, std::shared_ptr<std::map<std::string, TodoBlock*>> >>> tabBlockMap;
 
-    std::map<std::string, TodoBlock*> *todoBlockMap;
-    std::map<std::string, TodoBlock*> *toDoneBlockMap;
-
-    NetworkEngine *networkEngine;
-    bool received;
-
-    TodoWindow *todo;
-    TodoWindow *toDone;
+    static std::shared_ptr<DataEngine> instance;
+    static std::shared_ptr<DataEngine> getInstance();
 
 };
 
