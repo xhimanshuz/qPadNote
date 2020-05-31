@@ -5,6 +5,8 @@
 
 Backend::Backend(QRect screen, QWidget *parent) : QWidget(parent), screenSize(screen)
 {
+    setWindowFlags(Qt::WindowType::Dialog | Qt::WindowType::FramelessWindowHint | Qt::WindowType::NoDropShadowWindowHint);
+
     mainLayout = new QVBoxLayout;
     dataEngine = DataEngine::getInstance();
     tabToWindowsMap = std::make_shared<std::map<std::string, std::pair<TodoWindow*, TodoWindow*> >>();
@@ -14,6 +16,7 @@ Backend::Backend(QRect screen, QWidget *parent) : QWidget(parent), screenSize(sc
     setLayout(mainLayout);
 
     createTabByFile();
+    setupSystemTrayIcon();
 }
 
 Backend::~Backend()
@@ -37,6 +40,7 @@ void Backend::renderUi()
     this->setGeometry((screenSize.width()-screenSize.width()*0.20), 0, screenSize.width()*0.20, screenSize.height());
 
     mainLayout->addWidget(tabWidget);
+    mainLayout->setMargin(0);
     addTabBar();
 
 }
@@ -66,7 +70,6 @@ QSplitter *Backend::createSplitter(const std::string& tabName)
 
     splitter->addWidget(todoScrollArea);
     splitter->addWidget(doneScrollArea);
-
 
     return splitter;
 }
@@ -131,18 +134,50 @@ void Backend::addTabBar()
     connect(editTabAction, &QAction::triggered, [this]{ renameTab(tabWidget->currentIndex()); });
 
     moreTabToolButton = new QToolButton;
-    moreTabToolButton->setText("...");
+    moreTabToolButton->setIcon(QIcon("://option.png"));
+
+    closeAction = new QAction("Exit");
+    connect(closeAction, &QAction::triggered, [this]{
+        this->close();
+    });
+
+    menu =  new QMenu;
+    menu->addAction(closeAction);
+
+    moreTabToolButton->setMenu(menu);
+    moreTabToolButton->setPopupMode(QToolButton::InstantPopup);
+
 
     tabToolBar = new QToolBar;
+    tabToolBar->addWidget(new QLabel("<b>Tab Edit: </b>"));
     tabToolBar->addActions(QList<QAction*>()<< addTabAction<< delTabAction<< editTabAction);
+
+    tabToolBar->addSeparator();
     tabToolBar->addWidget(moreTabToolButton);
 
     mainLayout->addWidget(tabToolBar);
+    mainLayout->setSpacing(0);
+}
+
+void Backend::setupSystemTrayIcon()
+{
+    sysTrayIcon = new QSystemTrayIcon(QIcon("://option.png"));
+//    sysTrayIcon->setVisible(true);
+    sysTrayIcon->showMessage("this is testing mesg", "msg.....");
+    sysTrayIcon->setIcon(QIcon("://option.png"));
+    sysTrayIcon->setContextMenu(menu);
+    sysTrayIcon->show();
 }
 
 void Backend::leaveEvent(QEvent *event)
 {
     event->accept();
     DataEngine::getInstance()->writeData();
-;}
+}
+
+void Backend::hideEvent(QHideEvent *event)
+{
+    if(this->isMinimized())
+        this->activateWindow();
+}
 

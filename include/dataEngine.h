@@ -12,13 +12,24 @@
 
 class TodoWindow;
 
+struct Config
+{
+    int fontSize = 13;
+    std::string fontFamily = "Roboto";
+
+    Config(): fontSize(13), fontFamily("Roboto")
+    {
+
+    }
+};
+
 class DataEngine
 {
     void jsonToMap(QJsonObject jObj);
     QJsonObject readData();
     QJsonDocument mapToJson();
 
-
+    void syncMapUI();
     std::string fileName;
     NetworkEngine *networkEngine;
 public:
@@ -34,6 +45,8 @@ public:
 
     static std::shared_ptr<DataEngine> instance;
     static std::shared_ptr<DataEngine> getInstance();
+
+    Config config;
 
 };
 

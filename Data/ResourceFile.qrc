@@ -1,5 +1,13 @@
 <RCC>
     <qresource prefix="/">
         <file>redDelete.png</file>
+        <file>more.png</file>
+        <file>more2.png</file>
+        <file>remove.png</file>
+        <file>moreV.png</file>
+        <file>moreH.png</file>
+        <file>option.png</file>
+        <file>icon.png</file>
+        <file>icon.svg</file>
     </qresource>
 </RCC>

@@ -5,6 +5,7 @@
 
 TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType type, QObject *backend, QWidget *parent) : QWidget(parent), type(type), backend(backend), tabName(_tabName)
 {
+
     dataEngine = DataEngine::getInstance();
     toMap = (type==TodoBlockType::TODO)?dataEngine->tabMap->find(tabName)->second.first:dataEngine->tabMap->find(tabName)->second.second;
     toBlockMap = (type==TodoBlockType::TODO)?dataEngine->tabBlockMap->find(tabName)->second.first:dataEngine->tabBlockMap->find(tabName)->second.second;
@@ -15,8 +16,11 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
     hbox->addWidget(titleLable, 0, Qt::AlignmentFlag::AlignTop);
     hbox->addStrut(1);
     mainLayout->addLayout(hbox);
+    mainLayout->setSpacing(0);
+    mainLayout->setMargin(0);
 
     addLineEdit = new QLineEdit;
+    addLineEdit->setMaxLength(25);
     connect(addLineEdit, &QLineEdit::returnPressed, [=]{
         QString title = addLineEdit->text();
         if(title.isEmpty())
@@ -39,7 +43,6 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
     mainLayout->setMargin(0);
 
     mapToBlockMap();
-
 }
 
 TodoWindow::~TodoWindow()
@@ -50,6 +53,8 @@ TodoWindow::~TodoWindow()
 void TodoWindow::renderUi()
 {
     blockVBox = new QVBoxLayout;
+    blockVBox->setSpacing(1);
+    blockVBox->setMargin(0);
     updateTodoBlocks();
     mainLayout->addLayout(blockVBox);
     mainLayout->addStretch(1);

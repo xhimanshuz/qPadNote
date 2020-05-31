@@ -11,8 +11,13 @@
 #include <QTextEdit>
 #include <QCheckBox>
 #include <QToolButton>
+#include <QToolBar>
+
 #include <random>
 #include <ctime>
+#include <iomanip>
+
+//#include "dataEngine.h"
 
 enum class TodoBlockType
 {
@@ -33,10 +38,11 @@ public:
     std::string id;
     std::string subString;
     bool isToDone;
-    QToolButton *deleteToolButton;
+    QAction *deleteToolButton;
 
     void setSubString(const std::string subString);
     std::string getSubString();
+    QString getStatusTip();
 protected:
 //    QSize sizeHint() const override;
 
@@ -44,15 +50,22 @@ signals:
     void deleteBlock(std::string id);
     void moveBlock(bool toggle, std::string);
 private:
+    QWidget *createMoreWidget();
     void connectSignalSlot();
 
+    QToolBar *blockToolBar;
+    QAction *showSubButton;
     QVBoxLayout *mainLayout;
     QLabel *substringLabel;
     QLabel *dateLabel;
     QTextEdit *subStringTE;
+    QWidget *subWidget;
+    QToolButton *subToolButton;
     int closeSize;
     bool showSub;
     const std::string createdTime;
+
+//    std::shared_ptr<DataEngine> dataEngine;
 };
 
 #endif // TODOBLOCK_H

@@ -8,6 +8,9 @@
 #include <QToolBar>
 #include <QTabWidget>
 #include <QInputDialog>
+#include <QHideEvent>
+#include <QSystemTrayIcon>
+#include <QMenuBar>
 
 #include "TodoWindow.h"
 #include "TodoBlock.h"
@@ -28,8 +31,10 @@ public:
     void renameTab(int index);
     void createTabByFile();
     void addTabBar();
+    void setupSystemTrayIcon();
 protected:
     void leaveEvent(QEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
 
 private:
     QVBoxLayout *mainLayout;
@@ -40,10 +45,14 @@ private:
     QAction *addTabAction;
     QAction *delTabAction;
     QAction *editTabAction;
+    QAction *closeAction;
     QToolButton *moreTabToolButton;
 
     QToolBar *tabToolBar;
     std::shared_ptr<std::map<std::string, std::pair<TodoWindow*, TodoWindow*> >> tabToWindowsMap;
+
+    QSystemTrayIcon *sysTrayIcon;
+    QMenu *menu;
 
 };
 

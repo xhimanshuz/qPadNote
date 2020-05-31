@@ -8,6 +8,8 @@ DataEngine::DataEngine(): fileName{"../Data/sampleConfig.json"}
     tabMap = std::make_shared<std::map<std::string, std::pair<std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>, std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>>>>();
     tabBlockMap = std::make_shared<std::map<std::string, std::pair< std::shared_ptr<std::map<std::string, TodoBlock*>>, std::shared_ptr<std::map<std::string, TodoBlock*>> >>>();
     networkEngine = new NetworkEngine;
+    config.fontSize = 13;
+    config.fontFamily = "Roboto";
 
     jsonToMap(readData());
 }
@@ -66,7 +68,48 @@ QJsonDocument DataEngine::mapToJson()
     }
     mainJ.insert("userData", userDataJ);
 
+    QJsonObject configJ;
+    configJ.insert("fontSize", config.fontSize);
+    configJ.insert("fontFamily", config.fontFamily.c_str());
+
+    mainJ.insert("appData", configJ);
+
+
     return QJsonDocument(mainJ);
+}
+
+void DataEngine::syncMapUI()
+{
+    for(auto tab: *tabBlockMap)
+    {
+        auto tabM = tabMap->find(tab.first);
+        auto todoBlock = tab.second.first;
+        auto todoM = tabM->second.first;
+
+        for(auto todoB: *todoBlock)
+        {
+            todoM->find(todoB.first)->second.at(0) = todoB.second->id;
+            todoM->find(todoB.first)->second.at(1) = "0";
+            todoM->find(todoB.first)->second.at(2) = todoB.second->subString;
+            todoM->find(todoB.first)->second.at(3) = tabM->first;
+            todoM->find(todoB.first)->second.at(4) = todoB.second->title;
+            todoM->find(todoB.first)->second.at(5) = "0";
+        }
+
+        auto doneBlock = tab.second.second;
+        auto doneM = tabM->second.second;
+
+        for(auto doneB: *doneBlock)
+        {
+            doneM->find(doneB.first)->second.at(0) = doneB.second->id;
+            doneM->find(doneB.first)->second.at(1) = "0";
+            doneM->find(doneB.first)->second.at(2) = doneB.second->subString;
+            doneM->find(doneB.first)->second.at(3) = tabM->first;
+            doneM->find(doneB.first)->second.at(4) = doneB.second->title;
+            doneM->find(doneB.first)->second.at(5) = "1";
+        }
+
+    }
 }
 
 void DataEngine::jsonToMap(QJsonObject jObj)
@@ -105,6 +148,13 @@ void DataEngine::jsonToMap(QJsonObject jObj)
         tabMap->insert(std::make_pair(tn, std::make_pair(todoMap, toDoneMap)));
         tabBlockMap->insert(std::make_pair(tn, std::make_pair(std::make_shared<std::map<std::string, TodoBlock*>>(), std::make_shared<std::map<std::string, TodoBlock*>>())));
     }
+
+    auto appJ = jObj.value("appData").toObject();
+    if(appJ.size())
+    {
+        config.fontSize = appJ.value("fontSize").toInt();
+        config.fontFamily = appJ.value("fontFamily").toString().toStdString();
+    }
 }
 
 QJsonObject DataEngine::readData()
@@ -131,6 +181,7 @@ void DataEngine::writeData()
         return;
     }
 
+    syncMapUI();
     file.write(mapToJson().toJson());
     file.close();
 }
@@ -154,24 +205,6 @@ void DataEngine::deleteBlock(std::string id, const std::string tabName)
 
     writeData();
 }
-
-//void DataEngine::updateMap()
-//{
-//    for(auto &todoBlock: *todoBlockMap)
-//    {
-//        todoMap->at(todoBlock.first).at(0) = todoBlock.second->title;
-//        todoMap->at(todoBlock.first).at(1) = todoBlock.second->getSubString();
-//        todoMap->at(todoBlock.first).at(2) = "0";
-//        todoMap->at(todoBlock.first).at(3) = todoBlock.second->id;
-//    }
-//    for(auto &toDoneBlock: *toDoneBlockMap)
-//    {
-//        toDoneMap->at(toDoneBlock.first).at(0) = toDoneBlock.second->title;
-//        toDoneMap->at(toDoneBlock.first).at(1) = toDoneBlock.second->getSubString();
-//        toDoneMap->at(toDoneBlock.first).at(2) = "1";
-//        toDoneMap->at(toDoneBlock.first).at(3) = toDoneBlock.second->id;
-//    }
-//}
 
 void DataEngine::createTabMap(const std::string &tabName)
 {
