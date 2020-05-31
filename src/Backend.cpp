@@ -5,7 +5,7 @@
 
 Backend::Backend(QRect screen, QWidget *parent) : QWidget(parent), screenSize(screen)
 {
-    setWindowFlags(Qt::WindowType::Dialog | Qt::WindowType::FramelessWindowHint | Qt::WindowType::NoDropShadowWindowHint);
+    setWindowFlags(Qt::WindowType::Dialog | Qt::WindowType::NoDropShadowWindowHint | Qt::Popup);
 
     mainLayout = new QVBoxLayout;
     dataEngine = DataEngine::getInstance();
@@ -141,8 +141,22 @@ void Backend::addTabBar()
         this->close();
     });
 
+//    minimizeToTray = new QAction("Hide");
+//    minimizeToTray->setCheckable(true);
+//    connect(minimizeToTray, &QAction::triggered, [this](bool toggle){
+//        if(toggle)
+//            this->setWindowFlags(windowFlags() | Qt::Dialog);
+//        else
+//            this->setWindowFlags(windowFlags() &  ~Qt::Dialog);
+//    });
+
     menu =  new QMenu;
+    menu->addAction(addTabAction);
+    menu->addAction(delTabAction);
+    menu->addAction(editTabAction);
     menu->addAction(closeAction);
+//    menu->addAction(minimizeToTray);
+
 
     moreTabToolButton->setMenu(menu);
     moreTabToolButton->setPopupMode(QToolButton::InstantPopup);
@@ -162,7 +176,11 @@ void Backend::addTabBar()
 void Backend::setupSystemTrayIcon()
 {
     sysTrayIcon = new QSystemTrayIcon(QIcon("://option.png"));
-//    sysTrayIcon->setVisible(true);
+    connect(sysTrayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason){
+        if(reason == QSystemTrayIcon::Trigger)
+            this->activateWindow();
+    });
+
     sysTrayIcon->showMessage("this is testing mesg", "msg.....");
     sysTrayIcon->setIcon(QIcon("://option.png"));
     sysTrayIcon->setContextMenu(menu);

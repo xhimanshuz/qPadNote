@@ -1,8 +1,9 @@
 #ifndef DATAENGINE_H
 #define DATAENGINE_H
+#include <array>
 
 #include "TodoBlock.h"
-#include "NetworkEngine.h"
+//#include "NetworkEngine.h"
 
 #include <QMap>
 #include <QJsonDocument>
@@ -31,7 +32,7 @@ class DataEngine
 
     void syncMapUI();
     std::string fileName;
-    NetworkEngine *networkEngine;
+//    NetworkEngine *networkEngine;
 public:
     DataEngine();
     ~DataEngine();

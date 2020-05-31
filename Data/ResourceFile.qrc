@@ -9,5 +9,6 @@
         <file>option.png</file>
         <file>icon.png</file>
         <file>icon.svg</file>
+        <file>icon.ico</file>
     </qresource>
 </RCC>

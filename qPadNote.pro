@@ -8,23 +8,20 @@ SOURCES += \
     src/TodoBlock.cpp \
     src/TodoWindow.cpp \
     src/dataEngine.cpp \
-    src/qPadNote.cpp \
-    src/NetworkEngine.cpp
+    src/qPadNote.cpp
 
 HEADERS += \
     include/Backend.h \
     include/TodoBlock.h \
     include/TodoWindow.h \
     include/data.h \
-    include/dataEngine.h \
-    include/NetworkEngine.h
+    include/dataEngine.h
 
 INCLUDEPATH += include
 
 RESOURCES += \
     Data/ResourceFile.qrc
 
-DESTDIR = $$PWD/build/ \
-        $$PWD/Data/
+DESTDIR = $$PWD/build/
 
 DISTFILES = $$PWD/Data/sampleConfig.json

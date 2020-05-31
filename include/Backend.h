@@ -46,6 +46,7 @@ private:
     QAction *delTabAction;
     QAction *editTabAction;
     QAction *closeAction;
+//    QAction *minimizeToTray;
     QToolButton *moreTabToolButton;
 
     QToolBar *tabToolBar;

@@ -3,11 +3,11 @@
 
 std::shared_ptr<DataEngine> DataEngine::instance = nullptr;
 
-DataEngine::DataEngine(): fileName{"../Data/sampleConfig.json"}
+DataEngine::DataEngine(): fileName{"sampleConfig.json"}
 {
     tabMap = std::make_shared<std::map<std::string, std::pair<std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>, std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>>>>();
     tabBlockMap = std::make_shared<std::map<std::string, std::pair< std::shared_ptr<std::map<std::string, TodoBlock*>>, std::shared_ptr<std::map<std::string, TodoBlock*>> >>>();
-    networkEngine = new NetworkEngine;
+//    networkEngine = new NetworkEngine;
     config.fontSize = 13;
     config.fontFamily = "Roboto";
 
