@@ -1,5 +1,5 @@
 QT += widgets network
-CONFIG += c++11
+CONFIG += c++11 static
 
 #QT_QPA_PLATFORM=wayland
 
@@ -24,4 +24,4 @@ RESOURCES += \
 
 DESTDIR = $$PWD/build/
 
-DISTFILES = $$PWD/Data/sampleConfig.json
+DISTFILES = $$PWD/build/sampleConfig.json

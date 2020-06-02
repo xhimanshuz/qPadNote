@@ -101,7 +101,7 @@ QWidget* TodoBlock::createMoreWidget()
 
     subLayout->addWidget(subStringTE);
 
-    auto time = atoll(std::string(id, 0, 10).c_str());
+    const long time = atoll(std::string(id, 0, 10).c_str());
     char ct[10];
     char cd[25];
     std::strftime(ct, 100, "%H:%M %p", std::localtime(&time));

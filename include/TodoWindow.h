@@ -30,6 +30,7 @@ public:
     void moveBlock(bool toggle, std::string blockId);
     void mapToBlockMap();
     const std::string getTabName() const;
+    void setTabName(const std::string &tabName);
 
 protected:
 //    QSize sizeHint() const override;

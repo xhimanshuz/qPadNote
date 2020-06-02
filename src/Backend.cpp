@@ -5,7 +5,8 @@
 
 Backend::Backend(QRect screen, QWidget *parent) : QWidget(parent), screenSize(screen)
 {
-    setWindowFlags(Qt::WindowType::Dialog | Qt::WindowType::NoDropShadowWindowHint | Qt::Popup);
+    setWindowFlags(Qt::WindowType::Dialog | Qt::WindowType::NoDropShadowWindowHint);
+    setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
 
     mainLayout = new QVBoxLayout;
     dataEngine = DataEngine::getInstance();
@@ -97,10 +98,22 @@ void Backend::removeTab(const int index, const std::string &tabName)
 
 void Backend::renameTab(int index)
 {
+    auto oldName = tabWidget->tabText(index);
     bool ok;
-    QString tabName = QInputDialog::getText(this, "Rename Tab Text", "Enter Tab Name", QLineEdit::Normal, tabWidget->tabText(index), &ok);
+    QString tabName = QInputDialog::getText(this, "Rename Tab Text", "Enter Tab Name", QLineEdit::Normal, oldName, &ok);
     if(ok)
+    {
         tabWidget->setTabText(index, tabName);
+        dataEngine->renameTabMap(oldName.toStdString(), tabName.toStdString());
+        auto todoWindow = std::move(tabToWindowsMap->find(oldName.toStdString())->second.first);
+        auto doneWindow = std::move(tabToWindowsMap->find(oldName.toStdString())->second.second);
+        todoWindow->setTabName(tabName.toStdString());
+        doneWindow->setTabName(tabName.toStdString());
+
+        tabToWindowsMap->insert(std::make_pair(tabName.toStdString(), std::make_pair(std::move(todoWindow), std::move(doneWindow))));
+        tabToWindowsMap->erase(oldName.toStdString());
+    }
+
 }
 
 void Backend::createTabByFile()
@@ -141,20 +154,23 @@ void Backend::addTabBar()
         this->close();
     });
 
-//    minimizeToTray = new QAction("Hide");
-//    minimizeToTray->setCheckable(true);
-//    connect(minimizeToTray, &QAction::triggered, [this](bool toggle){
-//        if(toggle)
-//            this->setWindowFlags(windowFlags() | Qt::Dialog);
-//        else
-//            this->setWindowFlags(windowFlags() &  ~Qt::Dialog);
-//    });
+    showAction = new QAction("Show/Hide");
+    connect(showAction, &QAction::triggered, [this]{
+        if(this->isHidden())
+        {
+            show();
+            activateWindow();
+        }
+        else
+            hide();
+    });
 
     menu =  new QMenu;
     menu->addAction(addTabAction);
     menu->addAction(delTabAction);
     menu->addAction(editTabAction);
     menu->addAction(closeAction);
+    menu->addAction(showAction);
 //    menu->addAction(minimizeToTray);
 
 
@@ -178,7 +194,11 @@ void Backend::setupSystemTrayIcon()
     sysTrayIcon = new QSystemTrayIcon(QIcon("://option.png"));
     connect(sysTrayIcon, &QSystemTrayIcon::activated, [this](QSystemTrayIcon::ActivationReason reason){
         if(reason == QSystemTrayIcon::Trigger)
+        {
+            if(this->isActiveWindow() || !isHidden())
+                this->hide();
             this->activateWindow();
+        }
     });
 
     sysTrayIcon->showMessage("this is testing mesg", "msg.....");
@@ -195,7 +215,7 @@ void Backend::leaveEvent(QEvent *event)
 
 void Backend::hideEvent(QHideEvent *event)
 {
-    if(this->isMinimized())
-        this->activateWindow();
+//    if(this->isMinimized())
+//        this->activateWindow();
 }
 

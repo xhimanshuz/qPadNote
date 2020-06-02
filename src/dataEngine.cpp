@@ -163,6 +163,7 @@ QJsonObject DataEngine::readData()
     if(!file.open(QFile::ReadOnly))
     {
         qDebug()<<" Error I/O Read File "<< fileName.c_str();
+        writeData();
         return QJsonObject();
     }
     auto f = file.readAll();
@@ -218,4 +219,13 @@ void DataEngine::removeTabMap(const std::string &tabName)
     tabBlockMap->find(tabName)->second.first.reset();
     tabBlockMap->find(tabName)->second.second.reset();
     this->tabBlockMap->erase(tabName);
+}
+
+void DataEngine::renameTabMap(const std::string &oldName, const std::string &newName)
+{
+    tabMap->insert(std::make_pair(newName ,std::move(tabMap->find(oldName)->second)));
+    tabMap->erase(oldName);
+
+    tabBlockMap->insert(std::make_pair(newName, std::move(tabBlockMap->find(oldName)->second)));
+    tabBlockMap->erase(oldName);
 }

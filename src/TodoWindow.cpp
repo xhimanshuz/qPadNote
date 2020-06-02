@@ -134,21 +134,26 @@ void TodoWindow::moveBlock(bool toggle, std::string blockId)
 
 void TodoWindow::mapToBlockMap()
 {
-        for(auto t: *toMap)
-        {
-            std::string id = t.second.at(0);
-            std::string position = t.second.at(1);
-            std::string subString = t.second.at(2);
-            std::string tabName = t.second.at(3);
-            std::string title = t.second.at(4);
-            std::string type = t.second.at(5);
-            addBlock(title, id, position, subString, (type=="1"));
-        }
+    for(auto t: *toMap)
+    {
+        std::string id = t.second.at(0);
+        std::string position = t.second.at(1);
+        std::string subString = t.second.at(2);
+        std::string tabName = t.second.at(3);
+        std::string title = t.second.at(4);
+        std::string type = t.second.at(5);
+        addBlock(title, id, position, subString, (type=="1"));
+    }
 }
 
 const std::string TodoWindow::getTabName() const
 {
     return tabName;
+}
+
+void TodoWindow::setTabName(const std::string &_tabName)
+{
+    this->tabName = _tabName;
 }
 
 void TodoWindow::updateRender()

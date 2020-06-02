@@ -1,6 +1,8 @@
 #ifndef DATAENGINE_H
 #define DATAENGINE_H
+
 #include <array>
+#include <memory>
 
 #include "TodoBlock.h"
 //#include "NetworkEngine.h"
@@ -40,6 +42,7 @@ public:
     void deleteBlock(std::string id, const std::string tabName);
     void createTabMap(const std::string& tabName);
     void removeTabMap(const std::string& tabName);
+    void renameTabMap(const std::string& oldName, const std::string& newName);
 
     std::shared_ptr<std::map<std::string, std::pair<std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>, std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>>>> tabMap;
     std::shared_ptr<std::map<std::string, std::pair< std::shared_ptr<std::map<std::string, TodoBlock*>>, std::shared_ptr<std::map<std::string, TodoBlock*>> >>> tabBlockMap;

@@ -55,6 +55,7 @@ private:
     QSystemTrayIcon *sysTrayIcon;
     QMenu *menu;
 
+    QAction *showAction;
 };
 
 #endif // BACKEND_H
