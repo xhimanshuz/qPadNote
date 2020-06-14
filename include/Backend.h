@@ -11,6 +11,7 @@
 #include <QHideEvent>
 #include <QSystemTrayIcon>
 #include <QMenuBar>
+#include <QMessageBox>
 
 #include "TodoWindow.h"
 #include "TodoBlock.h"

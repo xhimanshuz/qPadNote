@@ -30,6 +30,8 @@ void Backend::renderUi()
     tabWidget = new QTabWidget;
     connect(tabWidget, &QTabWidget::tabBarDoubleClicked, this, &Backend::renameTab);
     connect(tabWidget, &QTabWidget::tabCloseRequested, this, [this](int index){
+        if(QMessageBox::No == QMessageBox::warning(this, "Do you want to Close Tab", "All Tab data will be lost! Do you want that?", QMessageBox::Yes | QMessageBox::No));
+            return;
         removeTab(index, tabWidget->tabText(tabWidget->currentIndex()).toStdString());
         if(!tabWidget->count())
             createTab();
@@ -137,6 +139,8 @@ void Backend::addTabBar()
 
     delTabAction = new QAction("-");
     connect(delTabAction, &QAction::triggered, [this]{
+        if(QMessageBox::No == QMessageBox::warning(this, "Do you want to Close Tab", "All Tab data will be lost! Do you want that?", QMessageBox::Yes | QMessageBox::No));
+            return;
         removeTab(tabWidget->currentIndex(), tabWidget->tabText(tabWidget->currentIndex()).toStdString());
         if(!tabWidget->count())
             createTab();
@@ -213,7 +217,7 @@ void Backend::leaveEvent(QEvent *event)
     DataEngine::getInstance()->writeData();
 }
 
-void Backend::hideEvent(QHideEvent *event)
+void Backend::hideEvent(QHideEvent *)
 {
 //    if(this->isMinimized())
 //        this->activateWindow();
