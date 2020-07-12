@@ -10,6 +10,6 @@ int main(int argc, char** argv)
     app.setWindowIcon(QIcon("://icon.png"));
     Backend b(QApplication::desktop()->screenGeometry());
     b.show();
-    b.setStyleSheet("background: white;");
+//    b.setStyleSheet("background: black;");
     return app.exec();
 }

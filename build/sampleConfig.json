@@ -1,0 +1,14 @@
+{
+    "appData": {
+        "fontFamily": "Roboto",
+        "fontSize": 13
+    },
+    "userData": {
+        "Tab A": {
+            "toDone": {
+            },
+            "todo": {
+            }
+        }
+    }
+}
