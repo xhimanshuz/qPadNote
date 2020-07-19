@@ -1,12 +1,14 @@
-
+#include "NetworkEngine.h"
 #include "TodoWindow.h"
 #include "Backend.h"
 #include <QDebug>
 
 TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType type, QObject *backend, QWidget *parent) : QWidget(parent), type(type), backend(backend), tabName(_tabName)
 {
+    networkEngine = NetworkEngine::getInstance();
 
     dataEngine = DataEngine::getInstance();
+
     toMap = (type==TodoBlockType::TODO)?dataEngine->tabMap->find(tabName)->second.first:dataEngine->tabMap->find(tabName)->second.second;
     toBlockMap = (type==TodoBlockType::TODO)?dataEngine->tabBlockMap->find(tabName)->second.first:dataEngine->tabBlockMap->find(tabName)->second.second;
     mainLayout = new QVBoxLayout;
@@ -77,12 +79,14 @@ void TodoWindow::addBlock(std::string title, std::string id, std::string positio
     connect(block, &TodoBlock::moveBlock, [&](bool toggle, std::string id){ moveBlock(toggle, id); dataEngine->writeData(); });
     connect(block, &TodoBlock::deleteBlock, this, [&](std::string id){
         dataEngine->deleteBlock(id, tabName);
+        networkEngine->removeBlock(std::atoll(id.c_str()));
     });
 
     toMap->insert(std::pair<std::string, std::array<std::string, 6>>(id, { id, position, subString, tabName, title, ((isToDone)?"1":"0")}));
     toBlockMap->insert(std::make_pair(id, block));
 
     blockVBox->addWidget(block);
+    networkEngine->sendBlock(*block);
 }
 
 // Update the todoBlock and add to theri location either todo or done

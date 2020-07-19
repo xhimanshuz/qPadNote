@@ -1,6 +1,8 @@
 #ifndef BACKEND_H
 #define BACKEND_H
 
+#include <future>
+
 #include <QWidget>
 #include <QSplitter>
 #include <QRect>
@@ -16,6 +18,8 @@
 #include "TodoWindow.h"
 #include "TodoBlock.h"
 #include "dataEngine.h"
+
+class NetworkEngine;
 
 class Backend : public QWidget
 {
@@ -57,6 +61,8 @@ private:
     QMenu *menu;
 
     QAction *showAction;
+
+    std::shared_ptr<NetworkEngine> networkEngine;
 };
 
 #endif // BACKEND_H

@@ -38,13 +38,14 @@ public:
     std::string id;
     std::string subString;
     bool isToDone;
+    std::string tid;
+    int32_t uid;
+
     QAction *deleteToolButton;
 
-    void setSubString(const std::string subString);
-    std::string getSubString();
     QString getStatusTip();
 protected:
-//    QSize sizeHint() const override;
+    //    QSize sizeHint() const override;
 
 signals:
     void deleteBlock(std::string id);

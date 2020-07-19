@@ -14,6 +14,7 @@
 
 #include "TodoBlock.h"
 #include "dataEngine.h"
+class NetworkEngine;
 
 //#include "Backend.h"
 
@@ -51,7 +52,9 @@ private:
 
     std::shared_ptr<std::map<std::string, std::array<std::string, 6> >> toMap;
     std::shared_ptr<std::map<std::string, TodoBlock*>> toBlockMap;
-//    static QVector<QPair<QString, TodoBlock*>> *todoMap;
+    std::shared_ptr<NetworkEngine> networkEngine;
+
+    //    static QVector<QPair<QString, TodoBlock*>> *todoMap;
 //    static QVector<QPair<QString, TodoBlock*>> *todoneMap;
 };
 

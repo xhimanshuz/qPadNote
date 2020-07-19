@@ -1,7 +1,8 @@
 ﻿#include "TodoBlock.h"
 #include "dataEngine.h"
 
-TodoBlock::TodoBlock(std::string _id, std::string _title, std::string _subString, bool _toDone, QWidget *parent) : QWidget(parent), showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}
+TodoBlock::TodoBlock(std::string _id, std::string _title, std::string _subString, bool _toDone, QWidget *parent) : QWidget(parent),
+    showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}, tid{"NULL"}, uid{1000}
 {
 //    dataEngine = DataEngine::getInstance();
     this->setParent(parent);
@@ -67,15 +68,7 @@ void TodoBlock::renderUi()
     connectSignalSlot();
 }
 
-void TodoBlock::setSubString(const std::string subString)
-{
-    subStringTE->setPlainText(subString.c_str());
-}
 
-std::string TodoBlock::getSubString()
-{
-    return subStringTE->toPlainText().toStdString();
-}
 
 QString TodoBlock::getStatusTip()
 {

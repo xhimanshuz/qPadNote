@@ -1,5 +1,5 @@
 #include "Backend.h"
-#include "TodoBlock.h"
+#include "NetworkEngine.h"
 #include <QScrollArea>
 #include <QDebug>
 
@@ -8,8 +8,12 @@ Backend::Backend(QRect screen, QWidget *parent) : QWidget(parent), screenSize(sc
     setWindowFlags(Qt::WindowType::Dialog | Qt::WindowType::NoDropShadowWindowHint);
     setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
 
-    mainLayout = new QVBoxLayout;
+    networkEngine = NetworkEngine::getInstance("127.0.0.1", "8000");
+    std::thread(std::bind(&NetworkEngine::createConnection, networkEngine)).detach();
+
     dataEngine = DataEngine::getInstance();
+
+    mainLayout = new QVBoxLayout;
     tabToWindowsMap = std::make_shared<std::map<std::string, std::pair<TodoWindow*, TodoWindow*> >>();
 
     setMouseTracking(true);
