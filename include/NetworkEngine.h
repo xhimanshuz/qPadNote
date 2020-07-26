@@ -32,6 +32,8 @@ public:
     void receiveData();
     void receiveBlocks(uint16_t size, uint8_t quantity);
 
+    void removeTab(std::string tid, uint32_t _uid = 0);
+
     static std::shared_ptr<NetworkEngine> instance;
     static std::shared_ptr<NetworkEngine> getInstance(const std::string host="", const std::string port="");
 

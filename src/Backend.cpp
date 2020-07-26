@@ -31,10 +31,11 @@ Backend::~Backend()
 
 void Backend::renderUi()
 {
-    tabWidget = new QTabWidget;
+    tabWidget = new QTabWidget(this);
     connect(tabWidget, &QTabWidget::tabBarDoubleClicked, this, &Backend::renameTab);
     connect(tabWidget, &QTabWidget::tabCloseRequested, this, [this](int index){
-        if(QMessageBox::No == QMessageBox::warning(this, "Do you want to Close Tab", "All Tab data will be lost! Do you want that?", QMessageBox::Yes | QMessageBox::No));
+        auto ans = QMessageBox::warning(this, "Do you want to Close Tab", "All Tab data will be lost! Do you want that?", QMessageBox::Yes | QMessageBox::No);
+        if(QMessageBox::No == ans)
             return;
         removeTab(index, tabWidget->tabText(tabWidget->currentIndex()).toStdString());
         if(!tabWidget->count())
@@ -59,14 +60,14 @@ void Backend::updateTodoWindow(const std::string &tabName)
     tabToWindowsMap->find(tabName)->second.second->updateTodoBlocks();
 }
 
-QSplitter *Backend::createSplitter(const std::string& tabName)
+QSplitter *Backend::createSplitter(const std::string& tabName, QWidget *parent)
 {
-    QSplitter *splitter = new QSplitter(Qt::Vertical);
+    QSplitter *splitter = new QSplitter(Qt::Vertical, parent);
 //    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
-    QScrollArea *todoScrollArea = new QScrollArea;
-    QScrollArea *doneScrollArea = new QScrollArea;
-    auto todoWindow = new TodoWindow(tabName, "TODO", TodoBlockType::TODO, this);
-    auto doneWindow = new TodoWindow(tabName, "DONE", TodoBlockType::DONE, this);
+    QScrollArea *todoScrollArea = new QScrollArea(splitter);
+    QScrollArea *doneScrollArea = new QScrollArea(splitter);
+    auto todoWindow = new TodoWindow(tabName, "TODO", TodoBlockType::TODO, todoScrollArea);
+    auto doneWindow = new TodoWindow(tabName, "DONE", TodoBlockType::DONE, doneScrollArea);
 
     tabToWindowsMap->insert(std::make_pair(tabName ,std::make_pair(todoWindow,doneWindow)));
 
@@ -92,14 +93,17 @@ void Backend::createTab(std::string name, bool initialCall)
         tabName = (name == "")?tr("Tab %0").arg(QChar('A'+count++)).toStdString():name;
 
     dataEngine->createTabMap(tabName);
-    tabWidget->addTab(createSplitter(tabName), QString(tabName.c_str()));
+    tabWidget->addTab(createSplitter(tabName, tabWidget), QString(tabName.c_str()));
     tabWidget->setCurrentIndex(tabWidget->count());
 }
 
 void Backend::removeTab(const int index, const std::string &tabName)
 {
     tabWidget->removeTab(index);
+//    tabWidget->widget(index)->close();
     dataEngine->removeTabMap(tabName);
+    networkEngine->removeTab(tabName);
+
 }
 
 void Backend::renameTab(int index)

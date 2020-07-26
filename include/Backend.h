@@ -30,7 +30,7 @@ public:
     void renderUi();
     void updateTodoWindow(const std::string& tabName);
 
-    QSplitter *createSplitter(const std::string &tabName);
+    QSplitter *createSplitter(const std::string &tabName, QWidget *parent = nullptr);
     void createTab(std::string name = "", bool initialCall = false);
     void removeTab(const int index, const std::string &tabName);
     void renameTab(int index);
