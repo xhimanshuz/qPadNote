@@ -48,8 +48,7 @@ void NetworkEngine::sendBlock(TodoBlock &todoBlock)
         try
         {
             auto bSize = socket->write_some(boost::asio::buffer(&block, sizeof(block)));
-            std::cout<<"[!] Block Writed with Size: "<< bSize<<std::endl;
-            std::cout<<block.toString();
+            std::cout<<"[!] Block Writed with Size: "<< bSize<<": "<< block.toJson()<< std::endl;
         }
 
         catch(boost::system::system_error se)
@@ -63,9 +62,9 @@ bool NetworkEngine::sendHeader(Protocol::TYPE _type, uint16_t _bodySize, uint8_t
 {
     try
     {
-        Protocol::Header header(Protocol::TYPE::HEADER, _type, _bodySize, _quantity);
+        Protocol::Header header(Protocol::TYPE::BLOCK, _type, _bodySize, _quantity);
         auto rhsize = socket->write_some(boost::asio::buffer(&header, sizeof(header)));
-        std::cout<<"[!] Header Writed with Size: "<< rhsize<<std::endl;
+        std::cout<<"[>>] Header Writed with Size: "<< rhsize<<": "<< header.toJson() <<std::endl;
     }
     catch (boost::system::system_error se)
     {

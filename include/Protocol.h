@@ -28,6 +28,20 @@ struct Header
     uint8_t quantity;
     Header(TYPE _type, TYPE _body, uint16_t _size, uint8_t _quantity): type(_type), body(_body), size(_size), quantity(_quantity) { }
     Header() {}
+    std::string toJson()
+    {
+        boost::property_tree::ptree json;
+//        json.put("type", type);
+//        json.put("body", body);
+//        json.put("size", size);
+//        json.put("quantity", quantity);
+//        json.put("isRequest", isRequest);
+
+        std::stringstream ss;
+        boost::property_tree::write_json(ss, json);
+
+        return ss.str();
+    }
 };
 
 namespace Request

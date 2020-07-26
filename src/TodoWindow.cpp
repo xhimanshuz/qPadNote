@@ -27,7 +27,7 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
         QString title = addLineEdit->text();
         if(title.isEmpty())
             return;
-        addBlock(title.toStdString());
+        addBlock(title.toStdString(), tabName);
 
         dataEngine->writeData();
         addLineEdit->clear();
@@ -71,11 +71,11 @@ void TodoWindow::connectSignalSlot()
 
 }
 
-void TodoWindow::addBlock(std::string title, std::string id, std::string position, std::string subString, bool isToDone)
+void TodoWindow::addBlock(std::string title, std::string tabName, std::string id, std::string position, std::string subString, bool isToDone)
 {
     if(id == "")
         id = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
-    TodoBlock *block = new TodoBlock(id.c_str(), title, subString, isToDone, this);
+    TodoBlock *block = new TodoBlock(id.c_str(), tabName, title, subString, isToDone, this);
     connect(block, &TodoBlock::moveBlock, [&](bool toggle, std::string id){ moveBlock(toggle, id); dataEngine->writeData(); });
     connect(block, &TodoBlock::deleteBlock, this, [&](std::string id){
         dataEngine->deleteBlock(id, tabName);
@@ -146,7 +146,7 @@ void TodoWindow::mapToBlockMap()
         std::string tabName = t.second.at(3);
         std::string title = t.second.at(4);
         std::string type = t.second.at(5);
-        addBlock(title, id, position, subString, (type=="1"));
+        addBlock(title, tabName, id, position , subString, (type=="1"));
     }
 }
 

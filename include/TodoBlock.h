@@ -30,7 +30,7 @@ class TodoBlock : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TodoBlock(std::string _id,std::string _title, std::string _subString, bool _isTodone = false, QWidget *parent = nullptr);
+    explicit TodoBlock(std::string _id, std::string _tid, std::string _title, std::string _subString, bool _isTodone = false, QWidget *parent = nullptr);
 
     void renderUi();
     QCheckBox *titleCheckbox;

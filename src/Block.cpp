@@ -10,6 +10,10 @@ Block::Block(bsoncxx::document::view block)
 Block::Block(int64_t _id, std::string _tid, const int32_t _uid, bool _isDone, const std::string _title, const std::string _substring): _id(_id),
    isDone(_isDone), uid(_uid)
 {
+    std::memset(tid, 0, sizeof(tid));
+    std::memset(title, 0, sizeof(title));
+    std::memset(substring, 0, sizeof(substring));
+
     std::strcpy(tid, _tid.c_str());
     std::strcpy(title, _title.c_str());
     std::strcpy(substring, _substring.c_str());
@@ -21,7 +25,6 @@ Block::Block()
     isDone = false;
     memset(&tid, '\0', 10);
     memset(&title, '\0', 12);
-    memset(&substring, '\0', 12);
     memset(&substring, '\0', 64);
     uid = 0;
 }
