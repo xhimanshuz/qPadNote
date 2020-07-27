@@ -149,6 +149,20 @@ void NetworkEngine::removeTab(std::string tid, uint32_t _uid)
     }
 }
 
+void NetworkEngine::renameTab(std::string xtid, std::string tid)
+{
+    Protocol::Request::RequestBlock rb(Protocol::Request::TYPE::RENAME_TAB_REQ, 0, "0");
+    if(sendHeader(Protocol::TYPE::REQUEST, sizeof(rb), 1))
+    {
+        auto wsize = socket->write_some(boost::asio::buffer(&rb, sizeof(rb)));
+        std::cout<<"[>>] Request Block sent for Renaming Tab write size: "<< wsize<<std::endl;
+
+        Protocol::Request::RenameTabRequest rtr(xtid, tid);
+        wsize = socket->write_some(boost::asio::buffer(&rtr, sizeof(rtr)));
+        std::cout<<"[>>] Rename Tab Requested for xtid: "<< xtid<< " tid: "<< tid<<std::endl;
+    }
+}
+
 std::shared_ptr<NetworkEngine> NetworkEngine::getInstance(const std::string host, const std::string port)
 {
     if(!instance)

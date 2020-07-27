@@ -51,7 +51,8 @@ enum TYPE
 {
     BLOCKS_TAB_REQ = 100,
     BLOCKS_ALL_REQ,
-    DELETE_TAB_REQ
+    DELETE_TAB_REQ,
+    RENAME_TAB_REQ
 };
 
 struct RequestBlock
@@ -78,6 +79,27 @@ struct DeleteTabRequest
     }
     DeleteTabRequest()
     {
+        std::memset(tid, 0, sizeof(tid));
+    }
+};
+
+struct RenameTabRequest
+{
+    Protocol::Request::TYPE type = Request::TYPE::RENAME_TAB_REQ;
+    char xtid[10];
+    char tid[10];
+
+    RenameTabRequest(std::string _xtid, std::string _tid)
+    {
+        std::memset(xtid, 0, sizeof(xtid));
+        std::memset(tid, 0, sizeof(tid));
+        std::strcpy(xtid, _xtid.c_str());
+        std::strcpy(tid, _tid.c_str());
+    }
+
+    RenameTabRequest()
+    {
+        std::memset(xtid, 0, sizeof(xtid));
         std::memset(tid, 0, sizeof(tid));
     }
 };

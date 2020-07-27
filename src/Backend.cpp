@@ -122,6 +122,8 @@ void Backend::renameTab(int index)
 
         tabToWindowsMap->insert(std::make_pair(tabName.toStdString(), std::make_pair(std::move(todoWindow), std::move(doneWindow))));
         tabToWindowsMap->erase(oldName.toStdString());
+
+        networkEngine->renameTab(oldName.toStdString(), tabName.toStdString());
     }
 
 }
