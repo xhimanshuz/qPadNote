@@ -1,11 +1,13 @@
 ﻿#include "TodoBlock.h"
 #include "dataEngine.h"
 
-TodoBlock::TodoBlock(std::string _id, std::string _tid, std::string _title, std::string _subString, bool _toDone, QWidget *parent) : QWidget(parent),
-    showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}, tid{_tid}, uid{1000}
+TodoBlock::TodoBlock(std::string _id, std::string _tid, std::string _title, std::string _subString, std::string _hash, bool _toDone, QWidget *parent) : QWidget(parent),
+    showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}, tid{_tid}, uid{1000}, hash{std::to_string(makeHash())}
 {
 //    dataEngine = DataEngine::getInstance();
     this->setParent(parent);
+    if( _hash != hash )
+        std::cout<<"[!] Hash not match old hash: "<< _hash<< " new Hash: "<<hash <<std::endl;
     mainLayout = new QVBoxLayout;
     renderUi();
     setLayout(mainLayout);
@@ -74,6 +76,13 @@ QString TodoBlock::getStatusTip()
 {
     return QString("<b>Task:</b> %0 \n<b>Summary:</b> %1 \n<b>Time:</b> %2").arg(title.c_str()).arg(subString.c_str()).arg("");
 
+}
+
+uint32_t TodoBlock::makeHash()
+{
+    std::stringstream ss;
+    ss << id << tid << title << subString << isToDone << tid << uid;
+    return strHash(ss.str());
 }
 
 void TodoBlock::connectSignalSlot()

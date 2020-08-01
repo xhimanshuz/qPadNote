@@ -37,6 +37,7 @@ void NetworkEngine::sendBlock(TodoBlock &todoBlock)
     if(!isConnected)
     {
         std::cout<<"Error Not Connected To Server, Adding to queue!\n";
+        return;
     }
 
     std::cout<<"[!] Sending Block!\n";

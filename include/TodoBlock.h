@@ -16,6 +16,8 @@
 #include <random>
 #include <ctime>
 #include <iomanip>
+#include <sstream>
+#include <iostream>
 
 //#include "dataEngine.h"
 
@@ -30,7 +32,7 @@ class TodoBlock : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TodoBlock(std::string _id, std::string _tid, std::string _title, std::string _subString, bool _isTodone = false, QWidget *parent = nullptr);
+    explicit TodoBlock(std::string _id, std::string _tid, std::string _title, std::string _subString, std::string _hash, bool _isTodone = false, QWidget *parent = nullptr);
 
     void renderUi();
     QCheckBox *titleCheckbox;
@@ -40,10 +42,12 @@ public:
     bool isToDone;
     std::string tid;
     int32_t uid;
+    std::string hash;
 
     QAction *deleteToolButton;
 
     QString getStatusTip();
+    uint32_t makeHash();
 protected:
     //    QSize sizeHint() const override;
 
@@ -65,7 +69,7 @@ private:
     int closeSize;
     bool showSub;
     const std::string createdTime;
-
+    std::hash<std::string> strHash;
 //    std::shared_ptr<DataEngine> dataEngine;
 };
 

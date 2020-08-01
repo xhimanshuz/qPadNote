@@ -27,7 +27,7 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
         QString title = addLineEdit->text();
         if(title.isEmpty())
             return;
-        addBlock(title.toStdString(), tabName);
+            addBlock(title.toStdString(), tabName);
 
         dataEngine->writeData();
         addLineEdit->clear();
@@ -71,18 +71,18 @@ void TodoWindow::connectSignalSlot()
 
 }
 
-void TodoWindow::addBlock(std::string title, std::string tabName, std::string id, std::string position, std::string subString, bool isToDone)
+void TodoWindow::addBlock(std::string title, std::string tabName, std::string id, std::string position, std::string subString, std::string hash, bool isToDone)
 {
     if(id == "")
         id = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
-    TodoBlock *block = new TodoBlock(id.c_str(), tabName, title, subString, isToDone, this);
+    TodoBlock *block = new TodoBlock(id.c_str(), tabName, title, subString, hash, isToDone, this);
     connect(block, &TodoBlock::moveBlock, [&](bool toggle, std::string id){ moveBlock(toggle, id); dataEngine->writeData(); });
     connect(block, &TodoBlock::deleteBlock, this, [&](std::string id){
         dataEngine->deleteBlock(id, tabName);
         networkEngine->removeBlock(std::atoll(id.c_str()));
     });
 
-    toMap->insert(std::pair<std::string, std::array<std::string, 6>>(id, { id, position, subString, tabName, title, ((isToDone)?"1":"0")}));
+    toMap->insert(std::pair<std::string, std::array<std::string, 7>>(id, { id, position, subString, tabName, title, ((isToDone)?"1":"0"), block->hash}));
     toBlockMap->insert(std::make_pair(id, block));
 
     blockVBox->addWidget(block);
@@ -101,8 +101,8 @@ void TodoWindow::updateTodoBlocks()
 // Move todoBlock map to  map
 void TodoWindow::moveBlock(bool toggle, std::string blockId)
 {
-    std::shared_ptr<std::map<std::string, std::array<std::string, 6> >> from;
-    std::shared_ptr<std::map<std::string, std::array<std::string, 6> >> to;
+    std::shared_ptr<std::map<std::string, std::array<std::string, 7> >> from;
+    std::shared_ptr<std::map<std::string, std::array<std::string, 7> >> to;
     std::shared_ptr<std::map<std::string, TodoBlock*>> fromBlock;
     std::shared_ptr<std::map<std::string, TodoBlock*>> toBlock;
 
@@ -146,7 +146,8 @@ void TodoWindow::mapToBlockMap()
         std::string tabName = t.second.at(3);
         std::string title = t.second.at(4);
         std::string type = t.second.at(5);
-        addBlock(title, tabName, id, position , subString, (type=="1"));
+        std::string hash = t.second.at(6);
+        addBlock(title, tabName, id, position , subString, hash, (type=="1"));
     }
 }
 

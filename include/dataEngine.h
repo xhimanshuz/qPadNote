@@ -44,7 +44,7 @@ public:
     void removeTabMap(const std::string& tabName);
     void renameTabMap(const std::string& oldName, const std::string& newName);
 
-    std::shared_ptr<std::map<std::string, std::pair<std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>, std::shared_ptr<std::map<std::string, std::array<std::string, 6> >>>>> tabMap;
+    std::shared_ptr<std::map<std::string, std::pair<std::shared_ptr<std::map<std::string, std::array<std::string, 7> >>, std::shared_ptr<std::map<std::string, std::array<std::string, 7> >>>>> tabMap;
     std::shared_ptr<std::map<std::string, std::pair< std::shared_ptr<std::map<std::string, TodoBlock*>>, std::shared_ptr<std::map<std::string, TodoBlock*>> >>> tabBlockMap;
 
     static std::shared_ptr<DataEngine> instance;
