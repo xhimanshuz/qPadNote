@@ -77,7 +77,7 @@ void TodoWindow::addBlock(std::string title, std::string tabName, std::string id
         id = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
     TodoBlock *block = new TodoBlock(id.c_str(), tabName, title, subString, hash, isToDone, this);
     connect(block, &TodoBlock::moveBlock, [&](bool toggle, std::string id){ moveBlock(toggle, id); dataEngine->writeData(); });
-    connect(block, &TodoBlock::deleteBlock, this, [&](std::string id){
+    connect(block, &TodoBlock::deleteBlock, this, [=](std::string id){
         dataEngine->deleteBlock(id, tabName);
         networkEngine->removeBlock(std::atoll(id.c_str()));
     });
