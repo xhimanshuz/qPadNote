@@ -1,12 +1,10 @@
-![alt text](https://github.com/xhimanshuz/qPadNote/blob/master/Data/header.png)
+![alt text](https://github.com/xhimanshuz/qPadNote/Data/readme.png)
 
 # Features
 - Keep your goal and Task on screen.
-![alt text](https://github.com/xhimanshuz/qPadNote/blob/master/Data/qPadNoteDetail.png)
 # Instruction
 Download x64 binary > https://github.com/xhimanshuz/qPadNote/releases
 ```shell
-chmod a+x qPadNote-x86_64-v0.1-pre-alpha.AppImage && sudo ./qPadNote-x86_64-v0.1-pre-alpha.AppImage
 ```
 # Build
 ```
