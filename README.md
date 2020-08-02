@@ -1,4 +1,4 @@
-![alt text](https://github.com/xhimanshuz/qPadNote/Data/readme.png)
+![alt text](https://github.com/xhimanshuz/qPadNote/blob/Remastered/Data/readme.png)
 
 # Features
 - Keep your goal and Task on screen.
