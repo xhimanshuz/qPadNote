@@ -66,8 +66,8 @@ QSplitter *Backend::createSplitter(const std::string& tabName, QWidget *parent)
 //    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
     QScrollArea *todoScrollArea = new QScrollArea(splitter);
     QScrollArea *doneScrollArea = new QScrollArea(splitter);
-    auto todoWindow = new TodoWindow(tabName, "TODO", TodoBlockType::TODO, todoScrollArea);
-    auto doneWindow = new TodoWindow(tabName, "DONE", TodoBlockType::DONE, doneScrollArea);
+    auto todoWindow = new TodoWindow(tabName, "TODO", TodoBlockType::TODO, this, todoScrollArea);
+    auto doneWindow = new TodoWindow(tabName, "DONE", TodoBlockType::DONE, this, doneScrollArea);
 
     tabToWindowsMap->insert(std::make_pair(tabName ,std::make_pair(todoWindow,doneWindow)));
 
