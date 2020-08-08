@@ -45,7 +45,7 @@ private:
     QVBoxLayout *mainLayout;
     QRect screenSize;
     QTabWidget *tabWidget;
-    std::shared_ptr<DataEngine> dataEngine;
+    DataEngine *dataEngine;
 
     QAction *addTabAction;
     QAction *delTabAction;

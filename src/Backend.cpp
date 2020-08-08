@@ -55,7 +55,6 @@ void Backend::renderUi()
 
 void Backend::updateTodoWindow(const std::string &tabName)
 {
-
     tabToWindowsMap->find(tabName)->second.first->updateTodoBlocks();
     tabToWindowsMap->find(tabName)->second.second->updateTodoBlocks();
 }
@@ -89,7 +88,7 @@ void Backend::createTab(std::string name, bool initialCall)
 
     // Check to create missing tab name sequence
     count = 0;
-    while(dataEngine->tabMap->find(tabName) != dataEngine->tabMap->end() && !initialCall)
+    while(dataEngine->tabBlockMap->find(tabName) != dataEngine->tabBlockMap->end() && !initialCall)
         tabName = (name == "")?tr("Tab %0").arg(QChar('A'+count++)).toStdString():name;
 
     dataEngine->createTabMap(tabName);
@@ -130,11 +129,11 @@ void Backend::renameTab(int index)
 
 void Backend::createTabByFile()
 {
-    if(!dataEngine->tabMap->size())
+    if(!dataEngine->tabBlockMap->size())
         createTab();
     else
     {
-        for(auto tab = dataEngine->tabMap->begin(); tab!= dataEngine->tabMap->end(); ++tab)
+        for(auto tab = dataEngine->tabBlockMap->begin(); tab!= dataEngine->tabBlockMap->end(); ++tab)
             createTab(tab->first, true);
     }
 }
@@ -149,7 +148,7 @@ void Backend::addTabBar()
 
     delTabAction = new QAction("-");
     connect(delTabAction, &QAction::triggered, [this]{
-        if(QMessageBox::No == QMessageBox::warning(this, "Do you want to Close Tab", "All Tab data will be lost! Do you want that?", QMessageBox::Yes | QMessageBox::No));
+        if(QMessageBox::No == QMessageBox::warning(this, "Do you want to Close Tab", "All Tab data will be lost! Do you want that?", QMessageBox::Yes | QMessageBox::No))
             return;
         removeTab(tabWidget->currentIndex(), tabWidget->tabText(tabWidget->currentIndex()).toStdString());
         if(!tabWidget->count())

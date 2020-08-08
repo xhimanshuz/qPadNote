@@ -32,7 +32,6 @@ class DataEngine
     QJsonObject readData();
     QJsonDocument mapToJson();
 
-    void syncMapUI();
     std::string fileName;
 //    NetworkEngine *networkEngine;
 public:
@@ -44,11 +43,10 @@ public:
     void removeTabMap(const std::string& tabName);
     void renameTabMap(const std::string& oldName, const std::string& newName);
 
-    std::shared_ptr<std::map<std::string, std::pair<std::shared_ptr<std::map<std::string, std::array<std::string, 7> >>, std::shared_ptr<std::map<std::string, std::array<std::string, 7> >>>>> tabMap;
-    std::shared_ptr<std::map<std::string, std::pair< std::shared_ptr<std::map<std::string, TodoBlock*>>, std::shared_ptr<std::map<std::string, TodoBlock*>> >>> tabBlockMap;
+    std::shared_ptr<std::map<std::string, std::pair< std::shared_ptr<std::map<std::string, TodoBlock*>>, std::shared_ptr<std::map<std::string, TodoBlock*>>> >> tabBlockMap;
 
-    static std::shared_ptr<DataEngine> instance;
-    static std::shared_ptr<DataEngine> getInstance();
+    static DataEngine* instance;
+    static DataEngine* getInstance();
 
     Config config;
 

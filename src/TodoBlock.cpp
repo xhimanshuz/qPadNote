@@ -2,7 +2,7 @@
 #include "dataEngine.h"
 
 TodoBlock::TodoBlock(std::string _id, std::string _tid, std::string _title, std::string _subString, std::string _hash, bool _toDone, QWidget *parent) : QWidget(parent),
-    showSub{true}, title(_title), id{_id}, subString{_subString}, isToDone{_toDone}, tid{_tid}, uid{1000}, hash{std::to_string(makeHash())}
+    id{_id}, tid{_tid}, title(_title), subString{_subString}, hash{std::to_string(makeHash())}, isToDone{_toDone}, uid{1000}, position{0}, showSub{true}
 {
 //    dataEngine = DataEngine::getInstance();
     this->setParent(parent);
@@ -15,13 +15,15 @@ TodoBlock::TodoBlock(std::string _id, std::string _tid, std::string _title, std:
 
 void TodoBlock::renderUi()
 {
-    auto dataEngine = DataEngine::getInstance();
+//    auto dataEngine = DataEngine::getInstance();
     titleCheckbox = new QCheckBox(title.c_str());
     titleCheckbox->setToolTip(getStatusTip());
-    titleCheckbox->setFont(QFont(QString(dataEngine->config.fontFamily.c_str()), dataEngine->config.fontSize, QFont::Bold));
+//    titleCheckbox->setFont(QFont(QString(dataEngine->config.fontFamily.c_str()), dataEngine->config.fontSize, QFont::Bold));
 
     titleCheckbox->setChecked(isToDone);
-    connect(titleCheckbox, &QCheckBox::toggled, [=](bool toggle){ moveBlock(toggle, id); });
+    connect(titleCheckbox, &QCheckBox::toggled, [=](bool toggle){
+        emit moveBlock(toggle, id);
+    });
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->setMargin(2);

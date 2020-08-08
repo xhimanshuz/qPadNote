@@ -34,18 +34,21 @@ class TodoBlock : public QWidget
 public:
     explicit TodoBlock(std::string _id, std::string _tid, std::string _title, std::string _subString, std::string _hash, bool _isTodone = false, QWidget *parent = nullptr);
 
-    void renderUi();
-    QCheckBox *titleCheckbox;
-    std::string title;
+
     std::string id;
-    std::string subString;
-    bool isToDone;
     std::string tid;
-    int32_t uid;
+    std::string title;
+    std::string subString;
     std::string hash;
+    bool isToDone;
+    int32_t uid;
+    uint16_t position;
+    bool showSub;
 
     QAction *deleteToolButton;
 
+    void renderUi();
+    QCheckBox *titleCheckbox;
     QString getStatusTip();
     uint32_t makeHash();
 protected:
@@ -67,7 +70,6 @@ private:
     QWidget *subWidget;
     QToolButton *subToolButton;
     int closeSize;
-    bool showSub;
     const std::string createdTime;
     std::hash<std::string> strHash;
 //    std::shared_ptr<DataEngine> dataEngine;

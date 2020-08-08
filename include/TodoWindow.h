@@ -29,12 +29,11 @@ public:
     void addBlock(std::string title, std::string tabName, std::string id = "", std::string position = "", std::string subString ="", std::string hash = "" ,  bool isToDone = false);
     void updateTodoBlocks();
     void moveBlock(bool toggle, std::string blockId);
-    void mapToBlockMap();
     const std::string getTabName() const;
     void setTabName(const std::string &tabName);
+    void setSignals();
 
 protected:
-//    QSize sizeHint() const override;
 
 private:
     void updateRender();
@@ -43,19 +42,14 @@ private:
     QLineEdit *addLineEdit;
     QLabel *titleLable;
     QVBoxLayout *blockVBox;
-//    QWidget *blockList;
 
     TodoBlockType type;
     QObject *backend;
-    std::shared_ptr<DataEngine> dataEngine;
+    DataEngine* dataEngine;
     std::string tabName;
 
-    std::shared_ptr<std::map<std::string, std::array<std::string, 7> >> toMap;
     std::shared_ptr<std::map<std::string, TodoBlock*>> toBlockMap;
     std::shared_ptr<NetworkEngine> networkEngine;
-
-    //    static QVector<QPair<QString, TodoBlock*>> *todoMap;
-//    static QVector<QPair<QString, TodoBlock*>> *todoneMap;
 };
 
 #endif // TODOWINDOW_H

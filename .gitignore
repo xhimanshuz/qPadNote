@@ -38,3 +38,4 @@ qPadNote.pro.*
 Makefile
 
 build-*
+*.json

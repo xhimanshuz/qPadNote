@@ -31,7 +31,7 @@ RESOURCES += \
 
 DESTDIR = $$PWD/build/
 
-DISTFILES = $$PWD/build/sampleConfig.json \
+DISTFILES = $$PWD/build/config.json \
             README.md
 
 LIBS += -lpthread \
