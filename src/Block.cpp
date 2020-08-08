@@ -2,10 +2,6 @@
 
 using namespace Protocol;
 
-Block::Block(bsoncxx::document::view block)
-{
-    fillData(block);
-}
 
 Block::Block(int64_t _id, std::string _tid, const int32_t _uid, bool _isDone, const std::string _title, const std::string _substring): _id(_id),
    isDone(_isDone), uid(_uid)
@@ -32,6 +28,11 @@ Block::Block()
 Block::~Block()
 {
 
+}
+#ifdef SERVR
+Block::Block(bsoncxx::document::view block)
+{
+    fillData(block);
 }
 
 bsoncxx::document::value Block::toDocumentValue()
@@ -75,6 +76,7 @@ bool Block::fillData(bsoncxx::document::view block)
         return true;
 }
 
+#endif
 const std::string Block::toString()
 {
     std::stringstream ss;
