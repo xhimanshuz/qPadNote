@@ -1,10 +1,14 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
+#ifdef SERVR
+
 #include <bsoncxx/document/value.hpp>
 #include <bsoncxx/document/view.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <mongocxx/client.hpp>
+
+#endif
 
 #include <iostream>
 #include <sstream>
@@ -24,13 +28,16 @@ public:
     char substring[64];
     int16_t uid;
 
-    Block(bsoncxx::document::view block);
     Block(int64_t _id, const std::string tid, int32_t uid, bool isDone, const std::string title, const std::string substring);
     Block();
     ~Block();
+#ifdef SERVR
 
+    Block(bsoncxx::document::view block);
     bsoncxx::document::value toDocumentValue();
     bool fillData(bsoncxx::document::view block);
+
+#endif
     const std::string toString();
     const std::string toJson();
 
