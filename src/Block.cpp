@@ -3,8 +3,8 @@
 using namespace Protocol;
 
 
-Block::Block(int64_t _id, std::string _tid, const int32_t _uid, bool _isDone, const std::string _title, const std::string _substring): _id(_id),
-   isDone(_isDone), uid(_uid)
+Block::Block(int64_t _id, std::string _tid, const int32_t _uid, bool _isDone, const std::string _title, const std::string _substring, uint32_t _hash): _id(_id),
+    isDone(_isDone), uid(_uid), hash{_hash}
 {
     std::memset(tid, 0, sizeof(tid));
     std::memset(title, 0, sizeof(title));
@@ -29,6 +29,28 @@ Block::~Block()
 {
 
 }
+#ifndef SERVER
+
+Block &Block::operator=(TodoBlock *todoBlock)
+{
+    std::memset(tid, 0, sizeof(tid));
+    std::memset(title, 0, sizeof(title));
+    std::memset(substring, 0, sizeof(substring));
+
+    _id = todoBlock->id;
+    uid = todoBlock->uid;
+
+    std::strcpy(tid, todoBlock->tid.c_str());
+    std::strcpy(title, todoBlock->title.c_str());
+    std::strcpy(substring, todoBlock->subString.c_str());
+    hash = todoBlock->hash;
+    isDone = todoBlock->isToDone;
+
+    return *this;
+}
+
+#endif
+
 #ifdef SERVR
 Block::Block(bsoncxx::document::view block)
 {
@@ -105,8 +127,3 @@ const std::string Block::toJson()
 
     return ss.str();
 }
-
-
-
-
-

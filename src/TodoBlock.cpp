@@ -1,8 +1,8 @@
 ﻿#include "TodoBlock.h"
 #include "dataEngine.h"
 
-TodoBlock::TodoBlock(std::string _id, std::string _tid, std::string _title, std::string _subString, std::string _hash, bool _toDone, QWidget *parent) : QWidget(parent),
-    id{_id}, tid{_tid}, title(_title), subString{_subString}, hash{std::to_string(makeHash())}, isToDone{_toDone}, uid{1000}, position{0}, showSub{true}
+TodoBlock::TodoBlock(int64_t _id, std::string _tid, std::string _title, std::string _subString, uint32_t _hash, bool _toDone, QWidget *parent) : QWidget(parent),
+    id{_id}, tid{_tid}, title(_title), subString{_subString}, hash{makeHash()}, isToDone{_toDone}, uid{1000}, position{0}, showSub{true}
 {
 //    dataEngine = DataEngine::getInstance();
     this->setParent(parent);
@@ -87,6 +87,11 @@ uint32_t TodoBlock::makeHash()
     return strHash(ss.str());
 }
 
+bool TodoBlock::isHashModified()
+{
+    return hash != makeHash();
+}
+
 void TodoBlock::connectSignalSlot()
 {
 
@@ -105,11 +110,14 @@ QWidget* TodoBlock::createMoreWidget()
 
     subLayout->addWidget(subStringTE);
 
-    const long time = atoll(std::string(id, 0, 10).c_str());
+    time_t rawtime = id;
     char ct[10];
     char cd[25];
-    std::strftime(ct, 100, "%H:%M %p", std::localtime(&time));
-    std::strftime(cd, 100, "%a, %m/%d/%y", std::localtime(&time));
+    time (&rawtime);
+    auto timeinfo = std::localtime(&rawtime);
+
+    std::strftime(ct, 100, "%I:%M %p", timeinfo);
+    std::strftime(cd, 100, "%a, %m/%d/%y", timeinfo);
 
     QVBoxLayout *tVBox = new QVBoxLayout;
     tVBox->addWidget(new QLabel(tr("<B>%0</b>").arg(ct)), 1, Qt::AlignmentFlag::AlignRight);

@@ -27,12 +27,12 @@ void NetworkEngine::createConnection()
         {
             std::cout<<"[e] Error in Connecting to ["<< host<<":"<<port<<"]. System_Error: "<< se.what()<<std::endl;
         }
-        sleep(5);
+        sleep(30);
     }
     std::cout<<"[!] Successfully Connected to ["<< host<<":"<<port<<"]. "<< socket->remote_endpoint()<<std::endl;
 }
 
-void NetworkEngine::sendBlock(TodoBlock &todoBlock)
+void NetworkEngine::writeBlock(TodoBlock &todoBlock)
 {
     if(!isConnected)
     {
@@ -42,9 +42,9 @@ void NetworkEngine::sendBlock(TodoBlock &todoBlock)
 
     std::cout<<"[!] Sending Block!\n";
 
-    Protocol::Block block(std::atol(todoBlock.id.c_str()), todoBlock.tid, todoBlock.uid, todoBlock.isToDone, todoBlock.title, todoBlock.subString);
+    Protocol::Block block(todoBlock.id, todoBlock.tid, todoBlock.uid, todoBlock.isToDone, todoBlock.title, todoBlock.subString);
 
-    if(sendHeader(Protocol::TYPE::BLOCK, sizeof(block), 1))
+    if(writeHeader(Protocol::TYPE::BLOCK, sizeof(block), 1))
     {
         try
         {
@@ -59,7 +59,35 @@ void NetworkEngine::sendBlock(TodoBlock &todoBlock)
     }
 }
 
-bool NetworkEngine::sendHeader(Protocol::TYPE _type, uint16_t _bodySize, uint8_t _quantity)
+void NetworkEngine::writeBlocks(std::vector<TodoBlock *> &blocksVector)
+{
+    if(!isConnected)
+    {
+        std::cout<<"Error Not Connected To Server, Adding to queue!\n";
+        return;
+    }
+
+    Protocol::Block blocks[blocksVector.size()];
+
+    int i{0};
+    for(auto block: blocksVector)
+        blocks[i++] = block;
+
+    if(writeHeader(Protocol::TYPE::BLOCK, sizeof(blocks), blocksVector.size()))
+    {
+        try
+        {
+            auto bsize = socket->write_some(boost::asio::buffer(&blocks, sizeof(blocks)));
+            std::cout<<"[!] Blocks Writed with size: "<< bsize;
+        }
+        catch (boost::system::system_error se)
+        {
+            std::cout<<"[e] Error in Writing Errors, System Error: "<< se.what()<<std::endl;
+        }
+    }
+}
+
+bool NetworkEngine::writeHeader(Protocol::TYPE _type, uint16_t _bodySize, uint8_t _quantity)
 {
     try
     {
@@ -77,7 +105,7 @@ bool NetworkEngine::sendHeader(Protocol::TYPE _type, uint16_t _bodySize, uint8_t
 
 void NetworkEngine::removeBlock(int64_t _id)
 {
-    if(sendHeader(Protocol::TYPE::DELETE_BLOCK, sizeof(int64_t), 1))
+    if(writeHeader(Protocol::TYPE::DELETE_BLOCK, sizeof(int64_t), 1))
     {
             auto writeSize = socket->write_some(boost::asio::buffer(&_id, sizeof(int64_t)));
             std::cout<<"[!] Remove Block requested sent for _id: "<< _id<< " Writed Size: "<< writeSize <<std::endl;
@@ -87,7 +115,7 @@ void NetworkEngine::removeBlock(int64_t _id)
 void NetworkEngine::getBlocks(int32_t uid)
 {
     Protocol::Request::RequestBlock blockRequest(Protocol::Request::TYPE::BLOCKS_ALL_REQ, uid, "0");
-    if(sendHeader(Protocol::TYPE::REQUEST, sizeof(blockRequest), 1))
+    if(writeHeader(Protocol::TYPE::REQUEST, sizeof(blockRequest), 1))
     {
         auto sent_size = socket->write_some(boost::asio::buffer(&blockRequest, sizeof(blockRequest)));
         std::cout<< "[!] Request sent for Blocks with uid: "<< uid<<" size: "<< sent_size<<std::endl;
@@ -98,7 +126,7 @@ void NetworkEngine::getBlocks(int32_t uid)
 void NetworkEngine::getBlocksByTid(int32_t uid, std::string tid)
 {
     Protocol::Request::RequestBlock blockRequest(Protocol::Request::TYPE::BLOCKS_ALL_REQ, uid, tid);
-    if(sendHeader(Protocol::TYPE::REQUEST, sizeof(blockRequest), 1))
+    if(writeHeader(Protocol::TYPE::REQUEST, sizeof(blockRequest), 1))
     {
         auto sent_size = socket->write_some(boost::asio::buffer(&blockRequest, sizeof(blockRequest)));
         std::cout<< "[!] Request sent for Blocks with uid: "<< uid<< " Size: "<< sent_size<<std::endl;
@@ -143,7 +171,7 @@ void NetworkEngine::removeTab(std::string tid, uint32_t _uid)
         return;
 
     Protocol::Request::RequestBlock request(Protocol::Request::TYPE::DELETE_TAB_REQ , _uid, tid);
-    if(sendHeader(Protocol::TYPE::REQUEST, sizeof(request), 1))
+    if(writeHeader(Protocol::TYPE::REQUEST, sizeof(request), 1))
     {
         auto rsize = socket->write_some(boost::asio::buffer(&request, sizeof(request)));
         std::cout<<"[>>] DeleteTab Requested for tid: "<< tid<< " Write Size: "<< rsize << std::endl;
@@ -153,7 +181,7 @@ void NetworkEngine::removeTab(std::string tid, uint32_t _uid)
 void NetworkEngine::renameTab(std::string xtid, std::string tid)
 {
     Protocol::Request::RequestBlock rb(Protocol::Request::TYPE::RENAME_TAB_REQ, 0, "0");
-    if(sendHeader(Protocol::TYPE::REQUEST, sizeof(rb), 1))
+    if(writeHeader(Protocol::TYPE::REQUEST, sizeof(rb), 1))
     {
         auto wsize = socket->write_some(boost::asio::buffer(&rb, sizeof(rb)));
         std::cout<<"[>>] Request Block sent for Renaming Tab write size: "<< wsize<<std::endl;

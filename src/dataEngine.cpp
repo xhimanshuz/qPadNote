@@ -5,12 +5,14 @@ DataEngine* DataEngine::instance = nullptr;
 
 DataEngine::DataEngine(): fileName{"config.json"}
 {
-    tabBlockMap = std::make_shared<std::map<std::string, std::pair< std::shared_ptr<std::map<std::string, TodoBlock*>>, std::shared_ptr<std::map<std::string, TodoBlock*>> >>>();
-//    networkEngine = new NetworkEngine;
+    tabBlockMap = std::make_shared<std::map<std::string, std::pair< std::shared_ptr<std::map<int64_t, TodoBlock*>>, std::shared_ptr<std::map<int64_t, TodoBlock*>> >>>();
+    networkEngine = NetworkEngine::getInstance();
     config.fontSize = 13;
     config.fontFamily = "Roboto";
 
     jsonToMap(readData());
+
+    std::thread(&DataEngine::hashModified, this).detach();
 }
 
 DataEngine::~DataEngine()
@@ -39,14 +41,14 @@ QJsonDocument DataEngine::mapToJson()
         for(auto todo: *tab.second.first)
         {
             QJsonObject todoBlock;
-            todoBlock.insert("id", todo.second->id.c_str());
+            todoBlock.insert("id", QString::number(todo.second->id));
             todoBlock.insert("position", todo.second->position);
             todoBlock.insert("subString", todo.second->subString.c_str());
             todoBlock.insert("tabName", todo.second->tid.c_str());
             todoBlock.insert("title", todo.second->title.c_str());
             todoBlock.insert("type", todo.second->isToDone);
-            todoBlock.insert("hash", todo.second->hash.c_str());
-            todoJ.insert(todo.second->id.c_str(), todoBlock);
+            todoBlock.insert("hash", QString::number(todo.second->hash));
+            todoJ.insert(QString::number(todo.second->id), todoBlock);
         }
         tabJ.insert("todo", todoJ);
 
@@ -54,14 +56,14 @@ QJsonDocument DataEngine::mapToJson()
         for(auto toDone: *tab.second.second)
         {
             QJsonObject toDoneBlock;
-            toDoneBlock.insert("id", toDone.second->id.c_str());
+            toDoneBlock.insert("id",  QString::number(toDone.second->id));
             toDoneBlock.insert("position", toDone.second->position);
             toDoneBlock.insert("subString", toDone.second->subString.c_str());
             toDoneBlock.insert("tabName", toDone.second->tid.c_str());
             toDoneBlock.insert("title", toDone.second->title.c_str());
             toDoneBlock.insert("type", toDone.second->isToDone);
-            toDoneBlock.insert("hash", toDone.second->hash.c_str());
-            toDoneJ.insert(toDone.second->id.c_str(), toDoneBlock);
+            toDoneBlock.insert("hash", QString::number(toDone.second->hash));
+            toDoneJ.insert(QString::number(toDone.second->id), toDoneBlock);
         }
         tabJ.insert("toDone", toDoneJ);
 
@@ -89,32 +91,32 @@ void DataEngine::jsonToMap(QJsonObject jObj)
         auto todoJ = t.value().toObject().value("todo").toObject();
         auto toDoneJ = t.value().toObject().value("toDone").toObject();
 
-        auto todoBlockMap = std::make_shared<std::map<std::string, TodoBlock*>>();
+        auto todoBlockMap = std::make_shared<std::map<int64_t, TodoBlock*>>();
         for(auto todo = todoJ.begin(); todo!=todoJ.end(); ++todo)
         {
             auto id = todo.key().toLong();
-            auto position = todo->toObject().value("position").toString().toStdString();
+            auto position = todo->toObject().value("position").toInt();
             auto subString = todo->toObject().value("subString").toString().toStdString();
             auto tabName = todo->toObject().value("tabName").toString().toStdString();
             auto title = todo->toObject().value("title").toString().toStdString();
             auto type = todo->toObject().value("type").toBool();
-            auto hash = todo->toObject().value("hash").toString().toStdString();
+            auto hash = todo->toObject().value("hash").toString().toInt();
 
-            todoBlockMap->insert(std::make_pair(std::to_string(id), new TodoBlock(std::to_string(id), tabName, title, subString, hash, type)));
+            todoBlockMap->insert(std::make_pair(id, new TodoBlock(id, tabName, title, subString, hash, type)));
         }
 
-        auto doneBlockMap = std::make_shared<std::map<std::string, TodoBlock*>>();
+        auto doneBlockMap = std::make_shared<std::map<int64_t, TodoBlock*>>();
         for(auto toDone = toDoneJ.begin(); toDone!=toDoneJ.end(); ++toDone)
         {
             int64_t id = toDone.key().toLong();
-            auto position = toDone->toObject().value("position").toString().toStdString();
+            auto position = toDone->toObject().value("position").toString().toInt();
             auto subString = toDone->toObject().value("subString").toString().toStdString();
             auto tabName = toDone->toObject().value("tabName").toString().toStdString();
             auto title = toDone->toObject().value("title").toString().toStdString();
             auto type = toDone->toObject().value("type").toBool();
-            auto hash = toDone->toObject().value("hash").toString().toStdString();
+            auto hash = toDone->toObject().value("hash").toString().toInt();
 
-            doneBlockMap->insert(std::make_pair(std::to_string(id), new TodoBlock(std::to_string(id), tabName, title, subString, hash, type)));
+            doneBlockMap->insert(std::make_pair(id, new TodoBlock(id, tabName, title, subString, hash, type)));
         }
 
         tabBlockMap->insert(std::make_pair(tabName, std::make_pair(todoBlockMap, doneBlockMap)));
@@ -158,7 +160,7 @@ void DataEngine::writeData()
     file.close();
 }
 
-void DataEngine::deleteBlock(std::string id, const std::string tabName)
+void DataEngine::deleteBlock(int64_t id, const std::string tabName)
 {
    auto tMap = tabBlockMap->find(tabName);
 
@@ -178,7 +180,7 @@ void DataEngine::deleteBlock(std::string id, const std::string tabName)
 
 void DataEngine::createTabMap(const std::string &tabName)
 {
-    tabBlockMap->insert(std::make_pair(tabName, std::make_pair(std::make_shared<std::map<std::string, TodoBlock*>>(), std::make_shared<std::map<std::string, TodoBlock*>>())));
+    tabBlockMap->insert(std::make_pair(tabName, std::make_pair(std::make_shared<std::map<int64_t, TodoBlock*>>(), std::make_shared<std::map<int64_t, TodoBlock*>>())));
 }
 
 void DataEngine::removeTabMap(const std::string &tabName)
@@ -193,4 +195,37 @@ void DataEngine::renameTabMap(const std::string &oldName, const std::string &new
 
     tabBlockMap->insert(std::make_pair(newName, std::move(tabBlockMap->find(oldName)->second)));
     tabBlockMap->erase(oldName);
+}
+
+void DataEngine::hashModified()
+{
+    std::cout<<"[!] HashModified Thread Started!"<<std::endl;
+    while(true)
+    {
+    std::vector<TodoBlock*> modifiedVecter;
+    for(auto tab: *tabBlockMap)
+    {
+        for(auto block: *tab.second.first)
+        {
+            if(block.second->isHashModified())
+            {
+                block.second->hash = block.second->makeHash();
+                modifiedVecter.push_back(block.second);
+            }
+        }
+
+        for(auto block: *tab.second.second)
+        {
+            if(block.second->isHashModified())
+            {
+                block.second->hash = block.second->makeHash();
+                modifiedVecter.push_back(block.second);
+            }
+        }
+    }
+    if(!modifiedVecter.empty())
+        networkEngine->writeBlocks(modifiedVecter);
+    sleep(10);
+    }
+
 }

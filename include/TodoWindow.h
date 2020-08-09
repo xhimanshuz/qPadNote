@@ -26,9 +26,9 @@ public:
     ~TodoWindow();
     void renderUi();
     void connectSignalSlot();
-    void addBlock(std::string title, std::string tabName, std::string id = "", std::string position = "", std::string subString ="", std::string hash = "" ,  bool isToDone = false);
+    void addBlock(std::string title, std::string tabName, int64_t id = 0, int64_t position = 0, std::string subString ="", uint32_t hash = 0,  bool isToDone = false);
     void updateTodoBlocks();
-    void moveBlock(bool toggle, std::string blockId);
+    void moveBlock(bool toggle, int64_t blockId);
     const std::string getTabName() const;
     void setTabName(const std::string &tabName);
     void setSignals();
@@ -48,7 +48,7 @@ private:
     DataEngine* dataEngine;
     std::string tabName;
 
-    std::shared_ptr<std::map<std::string, TodoBlock*>> toBlockMap;
+    std::shared_ptr<std::map<int64_t, TodoBlock*>> toBlockMap;
     std::shared_ptr<NetworkEngine> networkEngine;
 };
 

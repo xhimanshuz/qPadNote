@@ -5,7 +5,7 @@
 #include <memory>
 
 #include "TodoBlock.h"
-//#include "NetworkEngine.h"
+#include "NetworkEngine.h"
 
 #include <QMap>
 #include <QJsonDocument>
@@ -33,17 +33,18 @@ class DataEngine
     QJsonDocument mapToJson();
 
     std::string fileName;
-//    NetworkEngine *networkEngine;
+    std::shared_ptr<NetworkEngine> networkEngine;
 public:
     DataEngine();
     ~DataEngine();
     void writeData();
-    void deleteBlock(std::string id, const std::string tabName);
+    void deleteBlock(int64_t id, const std::string tabName);
     void createTabMap(const std::string& tabName);
     void removeTabMap(const std::string& tabName);
     void renameTabMap(const std::string& oldName, const std::string& newName);
+    void hashModified();
 
-    std::shared_ptr<std::map<std::string, std::pair< std::shared_ptr<std::map<std::string, TodoBlock*>>, std::shared_ptr<std::map<std::string, TodoBlock*>>> >> tabBlockMap;
+    std::shared_ptr<std::map<std::string, std::pair< std::shared_ptr<std::map<int64_t, TodoBlock*>>, std::shared_ptr<std::map<int64_t, TodoBlock*>>> >> tabBlockMap;
 
     static DataEngine* instance;
     static DataEngine* getInstance();

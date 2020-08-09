@@ -13,6 +13,7 @@ SOURCES += \
     src/qPadNote.cpp
 
 HEADERS += \
+    include/AbstractIO.h \
     include/Block.h \
     include/Protocol.h \
     include/Backend.h \

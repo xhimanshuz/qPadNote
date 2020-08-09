@@ -32,14 +32,14 @@ class TodoBlock : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TodoBlock(std::string _id, std::string _tid, std::string _title, std::string _subString, std::string _hash, bool _isTodone = false, QWidget *parent = nullptr);
+    explicit TodoBlock(int64_t _id, std::string _tid, std::string _title, std::string _subString, uint32_t _hash, bool _isTodone = false, QWidget *parent = nullptr);
 
 
-    std::string id;
+    int64_t id;
     std::string tid;
     std::string title;
     std::string subString;
-    std::string hash;
+    uint32_t hash;
     bool isToDone;
     int32_t uid;
     uint16_t position;
@@ -51,12 +51,13 @@ public:
     QCheckBox *titleCheckbox;
     QString getStatusTip();
     uint32_t makeHash();
+    bool isHashModified();
 protected:
     //    QSize sizeHint() const override;
 
 signals:
-    void deleteBlock(std::string id);
-    void moveBlock(bool toggle, std::string);
+    void deleteBlock(int64_t id);
+    void moveBlock(bool toggle, int64_t);
 private:
     QWidget *createMoreWidget();
     void connectSignalSlot();

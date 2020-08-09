@@ -70,21 +70,21 @@ void TodoWindow::connectSignalSlot()
 
 }
 
-void TodoWindow::addBlock(std::string title, std::string tabName, std::string id, std::string position, std::string subString, std::string hash, bool isToDone)
+void TodoWindow::addBlock(std::string title, std::string tabName, int64_t id, int64_t position, std::string subString, uint32_t hash, bool isToDone)
 {
-    if(id == "")
-        id = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
-    TodoBlock *block = new TodoBlock(id.c_str(), tabName, title, subString, hash, isToDone, this);
-    connect(block, &TodoBlock::moveBlock, [&](bool toggle, std::string id){ moveBlock(toggle, id); dataEngine->writeData(); });
-    connect(block, &TodoBlock::deleteBlock, this, [=](std::string id){
+    if(id == 0)
+        id = std::chrono::system_clock::now().time_since_epoch().count();
+    TodoBlock *block = new TodoBlock(id, tabName, title, subString, hash, isToDone, this);
+    connect(block, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); dataEngine->writeData(); });
+    connect(block, &TodoBlock::deleteBlock, this, [=](int64_t id){
         dataEngine->deleteBlock(id, tabName);
-        networkEngine->removeBlock(std::atoll(id.c_str()));
+        networkEngine->removeBlock(id);
     });
 
     toBlockMap->insert(std::make_pair(id, block));
 
     blockVBox->addWidget(block);
-    networkEngine->sendBlock(*block);
+    networkEngine->writeBlock(*block);
 }
 
 
@@ -99,10 +99,10 @@ void TodoWindow::updateTodoBlocks()
 }
 
 // Move todoBlock map to  map
-void TodoWindow::moveBlock(bool toggle, std::string blockId)
+void TodoWindow::moveBlock(bool toggle, int64_t blockId)
 {
-    std::shared_ptr<std::map<std::string, TodoBlock*>> fromBlock;
-    std::shared_ptr<std::map<std::string, TodoBlock*>> toBlock;
+    std::shared_ptr<std::map<int64_t, TodoBlock*>> fromBlock;
+    std::shared_ptr<std::map<int64_t, TodoBlock*>> toBlock;
 
     if(toggle)
     {
@@ -116,9 +116,9 @@ void TodoWindow::moveBlock(bool toggle, std::string blockId)
     }
 
     //    auto it = from->find(blockId);
-    auto block = fromBlock->find(blockId.c_str());
+    auto block = fromBlock->find(blockId);
 
-    block->second->id = std::to_string(std::chrono::system_clock::now().time_since_epoch().count());
+    block->second->id = std::chrono::system_clock::now().time_since_epoch().count();
     //    it->second.at(0) = block->second->id;
     block->second->isToDone = toggle;
     //    to->insert(std::make_pair(block->second->id, it->second));
@@ -145,13 +145,13 @@ void TodoWindow::setSignals()
     for(auto i=toBlockMap->begin(); i!=toBlockMap->end(); ++i)
     {
 
-        connect(i->second, &TodoBlock::moveBlock, [&](bool toggle, std::string id){
+        connect(i->second, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){
             moveBlock(toggle, id);
             dataEngine->writeData();
         });
-        connect(i->second, &TodoBlock::deleteBlock, this, [=](std::string id){
+        connect(i->second, &TodoBlock::deleteBlock, this, [=](int64_t id){
             dataEngine->deleteBlock(id, tabName);
-            networkEngine->removeBlock(std::atoll(id.c_str()));
+            networkEngine->removeBlock(id);
         });
     }
 }

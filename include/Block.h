@@ -10,6 +10,12 @@
 
 #endif
 
+#ifndef SERVER
+
+#include "TodoBlock.h"
+
+#endif
+
 #include <iostream>
 #include <sstream>
 #include <boost/property_tree/ptree.hpp>
@@ -27,10 +33,14 @@ public:
     char title[12];
     char substring[64];
     int16_t uid;
+    uint32_t hash;
 
-    Block(int64_t _id, const std::string tid, int32_t uid, bool isDone, const std::string title, const std::string substring);
+    Block(int64_t _id, const std::string tid, int32_t uid, bool isDone, const std::string title, const std::string substring, uint32_t _hash = 0);
     Block();
     ~Block();
+#ifndef Block
+    Block& operator= (TodoBlock *TodoBlock);
+#endif
 #ifdef SERVR
 
     Block(bsoncxx::document::view block);
