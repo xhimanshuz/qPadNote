@@ -70,11 +70,11 @@ void TodoWindow::connectSignalSlot()
 
 }
 
-void TodoWindow::addBlock(std::string title, std::string tabName, int64_t id, int64_t position, std::string subString, uint32_t hash, bool isToDone)
+void TodoWindow::addBlock(std::string title, std::string tabName, int64_t id, int64_t position, std::string subString, uint32_t hash, bool isToDone, int16_t uid)
 {
     if(id == 0)
         id = std::chrono::system_clock::now().time_since_epoch().count();
-    TodoBlock *block = new TodoBlock(id, tabName, title, subString, hash, isToDone, this);
+    TodoBlock *block = new TodoBlock(id, tabName, title, subString, hash, isToDone, uid, this);
     connect(block, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); dataEngine->writeData(); });
     connect(block, &TodoBlock::deleteBlock, this, [=](int64_t id){
         dataEngine->deleteBlock(id, tabName);

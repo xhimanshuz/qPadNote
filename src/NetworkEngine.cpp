@@ -42,7 +42,7 @@ void NetworkEngine::writeBlock(TodoBlock &todoBlock)
 
     std::cout<<"[!] Sending Block!\n";
 
-    Protocol::Block block(todoBlock.id, todoBlock.tid, todoBlock.uid, todoBlock.isToDone, todoBlock.title, todoBlock.subString);
+    Protocol::Block block{todoBlock};
 
     if(writeHeader(Protocol::TYPE::BLOCK, sizeof(block), 1))
     {
@@ -98,7 +98,7 @@ bool NetworkEngine::writeHeader(Protocol::TYPE _type, uint16_t _bodySize, uint8_
     catch (boost::system::system_error se)
     {
         std::cout<<"[E] Exception Occured! For Header: "<< se.what()<<std::endl;
-        return false;
+//        return false;
     }
     return true;
 }
@@ -165,6 +165,15 @@ void NetworkEngine::receiveBlocks(uint16_t size, uint8_t quantity)
         std::cout<< blocks[i].toJson()<<std::endl;
 }
 
+Protocol::Header NetworkEngine::readHeader()
+{
+    Protocol::Header header;
+    auto hsize = socket->read_some(boost::asio::buffer(&header, sizeof(header)));
+    std::cout<<"[!] Header Received size: "<<hsize<< " Type: " << (int)header.body << std::endl;
+
+    return header;
+}
+
 void NetworkEngine::removeTab(std::string tid, uint32_t _uid)
 {
     if(tid.empty())
@@ -200,4 +209,63 @@ std::shared_ptr<NetworkEngine> NetworkEngine::getInstance(const std::string host
         instance = std::make_shared<NetworkEngine>(host, port);
     }
     return instance;
+}
+
+void NetworkEngine::hashSync(int16_t uid, std::vector<uint32_t> &hashVector)
+{
+    if(!isConnected)
+    {
+        std::cout<<"Error Not Connected To Server, Adding to queue!\n";
+        return;
+    }
+
+    writeHashVector(uid, hashVector);
+
+    hashVector = readHashVector();
+}
+
+void NetworkEngine::writeHashVector(int16_t uid, std::vector<uint32_t> &hashVector)
+{
+    Protocol::Request::HashExchange hashExchange(uid, hashVector.size());
+    if(writeHeader(Protocol::TYPE::HASH_EXCHANGE, sizeof(hashExchange), 1))
+    {
+        auto wsize = socket->write_some(boost::asio::buffer(&hashExchange, sizeof(hashExchange)));
+        std::cout<< "[>>] HashExchange Request Sent, size: "<< wsize<<std::endl;
+
+        uint32_t hashes[hashVector.size()];
+        int i{0};
+        for(auto hv: hashVector)
+            hashes[i++] = hv;
+
+        wsize = socket->write_some(boost::asio::buffer(&hashes, sizeof(uint32_t)*hashExchange.hashQty));
+        std::cout<< "[>>] Hashes Request Sent, size: "<< wsize<< " and Qty: "<<hashVector.size() << std::endl;
+    }
+}
+
+std::vector<uint32_t> NetworkEngine::readHashVector()
+{
+    auto header = readHeader();
+
+    if(header.body == Protocol::TYPE::HASH_EXCHANGE)
+    {
+        Protocol::Request::HashExchange hashExchange;
+        auto rsize = socket->read_some(boost::asio::buffer(&hashExchange, sizeof(hashExchange)));
+        std::cout<< "[>>] HashExchange Received, size: "<< rsize<<std::endl;
+
+        std::vector<uint32_t> hashVector;
+        uint32_t hashes[hashExchange.hashQty];
+
+        rsize = socket->read_some(boost::asio::buffer(&hashes, sizeof(uint32_t)*hashExchange.hashQty));
+        std::cout<< "[>>] Hashes Received, size: "<< rsize<< " and Qty: "<<hashVector.size() << std::endl;
+
+        for(auto i=0; i< hashExchange.hashQty; i++)
+            hashVector.push_back(hashes[i]);
+
+        for(auto h: hashVector)
+            std::cout<< h<<" ";
+       std::cout<<std::endl;
+
+        return hashVector;
+    }
+    return {};
 }

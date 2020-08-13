@@ -29,12 +29,17 @@ public:
 
     void receiveData();
     void receiveBlocks(uint16_t size, uint8_t quantity) override;
+    Protocol::Header readHeader();
 
     void removeTab(std::string tid, uint32_t _uid = 0) override;
     void renameTab(std::string xtid, std::string tid) override;
 
     static std::shared_ptr<NetworkEngine> instance;
     static std::shared_ptr<NetworkEngine> getInstance(const std::string host="", const std::string port="");
+
+    void hashSync(int16_t uid, std::vector<uint32_t> &hash);
+    void writeHashVector(int16_t uid, std::vector<uint32_t> &hashVector);
+    std::vector<uint32_t> readHashVector();
 };
 
 #endif // NETWORKINTERFACE_H

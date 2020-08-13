@@ -1,8 +1,8 @@
 ﻿#include "TodoBlock.h"
 #include "dataEngine.h"
 
-TodoBlock::TodoBlock(int64_t _id, std::string _tid, std::string _title, std::string _subString, uint32_t _hash, bool _toDone, QWidget *parent) : QWidget(parent),
-    id{_id}, tid{_tid}, title(_title), subString{_subString}, hash{makeHash()}, isToDone{_toDone}, uid{1000}, position{0}, showSub{true}
+TodoBlock::TodoBlock(int64_t _id, std::string _tid, std::string _title, std::string _subString, uint32_t _hash, bool _toDone, int16_t _uid, QWidget *parent) : QWidget(parent),
+    id{_id}, tid{_tid}, title(_title), subString{_subString}, hash{makeHash()}, isToDone{_toDone}, uid{_uid}, position{0}, showSub{true}
 {
 //    dataEngine = DataEngine::getInstance();
     this->setParent(parent);

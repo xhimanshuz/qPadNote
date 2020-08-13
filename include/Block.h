@@ -1,7 +1,7 @@
 #ifndef BLOCK_H
 #define BLOCK_H
 
-#ifdef SERVR
+#ifdef SERVER
 
 #include <bsoncxx/document/value.hpp>
 #include <bsoncxx/document/view.hpp>
@@ -35,13 +35,16 @@ public:
     int16_t uid;
     uint32_t hash;
 
-    Block(int64_t _id, const std::string tid, int32_t uid, bool isDone, const std::string title, const std::string substring, uint32_t _hash = 0);
+    Block(int64_t _id, const std::string tid, int32_t uid, bool isDone, const std::string title, const std::string substring, uint32_t _hash);
     Block();
     ~Block();
-#ifndef Block
-    Block& operator= (TodoBlock *TodoBlock);
+
+#ifndef SERVER
+    Block(TodoBlock &todoBlock);
+    Block& operator= (TodoBlock *todoBlock);
+    Block& operator= (TodoBlock &todoBlock);
 #endif
-#ifdef SERVR
+#ifdef SERVER
 
     Block(bsoncxx::document::view block);
     bsoncxx::document::value toDocumentValue();

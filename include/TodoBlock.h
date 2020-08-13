@@ -32,7 +32,7 @@ class TodoBlock : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TodoBlock(int64_t _id, std::string _tid, std::string _title, std::string _subString, uint32_t _hash, bool _isTodone = false, QWidget *parent = nullptr);
+    explicit TodoBlock(int64_t _id, std::string _tid, std::string _title, std::string _subString, uint32_t _hash, bool _isTodone = false, int16_t uid = 1000, QWidget *parent = nullptr);
 
 
     int64_t id;
@@ -41,7 +41,7 @@ public:
     std::string subString;
     uint32_t hash;
     bool isToDone;
-    int32_t uid;
+    int16_t uid;
     uint16_t position;
     bool showSub;
 

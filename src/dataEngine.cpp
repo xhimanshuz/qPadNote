@@ -12,6 +12,7 @@ DataEngine::DataEngine(): fileName{"config.json"}
 
     jsonToMap(readData());
 
+
     std::thread(&DataEngine::hashModified, this).detach();
 }
 
@@ -47,7 +48,8 @@ QJsonDocument DataEngine::mapToJson()
             todoBlock.insert("tabName", todo.second->tid.c_str());
             todoBlock.insert("title", todo.second->title.c_str());
             todoBlock.insert("type", todo.second->isToDone);
-            todoBlock.insert("hash", QString::number(todo.second->hash));
+            todoBlock.insert("hash", QVariant(todo.second->hash).toLongLong());
+            todoBlock.insert("uid", todo.second->uid);
             todoJ.insert(QString::number(todo.second->id), todoBlock);
         }
         tabJ.insert("todo", todoJ);
@@ -62,7 +64,8 @@ QJsonDocument DataEngine::mapToJson()
             toDoneBlock.insert("tabName", toDone.second->tid.c_str());
             toDoneBlock.insert("title", toDone.second->title.c_str());
             toDoneBlock.insert("type", toDone.second->isToDone);
-            toDoneBlock.insert("hash", QString::number(toDone.second->hash));
+            toDoneBlock.insert("hash", QVariant(toDone.second->hash).toLongLong());
+            toDoneBlock.insert("uid", toDone.second->uid);
             toDoneJ.insert(QString::number(toDone.second->id), toDoneBlock);
         }
         tabJ.insert("toDone", toDoneJ);
@@ -77,13 +80,15 @@ QJsonDocument DataEngine::mapToJson()
 
     mainJ.insert("appData", configJ);
 
-
     return QJsonDocument(mainJ);
 }
 
 
 void DataEngine::jsonToMap(QJsonObject jObj)
 {
+    std::vector<uint32_t> hashVector;
+    int16_t uid{0};
+
     auto tabJ = jObj.value("userData").toObject();
     for(auto t=tabJ.begin(); t!=tabJ.end(); t++)
     {
@@ -100,9 +105,11 @@ void DataEngine::jsonToMap(QJsonObject jObj)
             auto tabName = todo->toObject().value("tabName").toString().toStdString();
             auto title = todo->toObject().value("title").toString().toStdString();
             auto type = todo->toObject().value("type").toBool();
-            auto hash = todo->toObject().value("hash").toString().toInt();
+            auto hash = todo->toObject().value("hash").toVariant().toUInt();
+            uid = todo->toObject().value("uid").toInt();
 
-            todoBlockMap->insert(std::make_pair(id, new TodoBlock(id, tabName, title, subString, hash, type)));
+            todoBlockMap->insert(std::make_pair(id, new TodoBlock(id, tabName, title, subString, hash, type, uid)));
+            hashVector.push_back(hash);
         }
 
         auto doneBlockMap = std::make_shared<std::map<int64_t, TodoBlock*>>();
@@ -114,9 +121,11 @@ void DataEngine::jsonToMap(QJsonObject jObj)
             auto tabName = toDone->toObject().value("tabName").toString().toStdString();
             auto title = toDone->toObject().value("title").toString().toStdString();
             auto type = toDone->toObject().value("type").toBool();
-            auto hash = toDone->toObject().value("hash").toString().toInt();
+            auto hash = toDone->toObject().value("hash").toVariant().toUInt();
+            uid = toDone->toObject().value("uid").toInt();
 
-            doneBlockMap->insert(std::make_pair(id, new TodoBlock(id, tabName, title, subString, hash, type)));
+            doneBlockMap->insert(std::make_pair(id, new TodoBlock(id, tabName, title, subString, hash, type, uid)));
+            hashVector.push_back(hash);
         }
 
         tabBlockMap->insert(std::make_pair(tabName, std::make_pair(todoBlockMap, doneBlockMap)));
@@ -129,6 +138,8 @@ void DataEngine::jsonToMap(QJsonObject jObj)
         config.fontSize = appJ.value("fontSize").toInt();
         config.fontFamily = appJ.value("fontFamily").toString().toStdString();
     }
+
+    networkEngine->hashSync(uid, hashVector);
 }
 
 QJsonObject DataEngine::readData()
@@ -227,5 +238,10 @@ void DataEngine::hashModified()
         networkEngine->writeBlocks(modifiedVecter);
     sleep(10);
     }
+
+}
+
+void DataEngine::syncWithNetwork()
+{
 
 }

@@ -17,7 +17,8 @@ enum class TYPE
     DELETE_BLOCK = 'd',
     DELETE_TAB = 't',
     RESPONSE = 'R',
-    REQUEST = 'r'
+    REQUEST = 'r',
+    HASH_EXCHANGE = 'x'
 };
 
 struct Header
@@ -102,6 +103,15 @@ struct RenameTabRequest
         std::memset(xtid, 0, sizeof(xtid));
         std::memset(tid, 0, sizeof(tid));
     }
+};
+
+struct HashExchange
+{
+    Protocol::TYPE type = Protocol::TYPE::HASH_EXCHANGE;
+    int16_t uid;
+    uint16_t hashQty;
+    HashExchange(int16_t _uid, uint16_t _hashQty): uid{_uid}, hashQty{_hashQty} {}
+    HashExchange(){}
 };
 
 }

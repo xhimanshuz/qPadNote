@@ -35,5 +35,5 @@ DESTDIR = $$PWD/build/
 DISTFILES = $$PWD/build/config.json \
             README.md
 
-LIBS += -lpthread \
-        -L/usr/local/lib -lmongocxx -lbsoncxx
+LIBS += -lpthread
+#        -L/usr/local/lib -lmongocxx -lbsoncxx

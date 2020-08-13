@@ -43,6 +43,7 @@ public:
     void removeTabMap(const std::string& tabName);
     void renameTabMap(const std::string& oldName, const std::string& newName);
     void hashModified();
+    void syncWithNetwork();
 
     std::shared_ptr<std::map<std::string, std::pair< std::shared_ptr<std::map<int64_t, TodoBlock*>>, std::shared_ptr<std::map<int64_t, TodoBlock*>>> >> tabBlockMap;
 

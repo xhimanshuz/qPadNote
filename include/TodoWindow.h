@@ -26,7 +26,7 @@ public:
     ~TodoWindow();
     void renderUi();
     void connectSignalSlot();
-    void addBlock(std::string title, std::string tabName, int64_t id = 0, int64_t position = 0, std::string subString ="", uint32_t hash = 0,  bool isToDone = false);
+    void addBlock(std::string title, std::string tabName, int64_t id = 0, int64_t position = 0, std::string subString ="", uint32_t hash = 0,  bool isToDone = false , int16_t uid = 1001);
     void updateTodoBlocks();
     void moveBlock(bool toggle, int64_t blockId);
     const std::string getTabName() const;
