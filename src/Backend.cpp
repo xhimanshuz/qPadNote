@@ -1,15 +1,14 @@
 #include "Backend.h"
-#include "NetworkEngine.h"
 #include <QScrollArea>
 #include <QDebug>
+
 
 Backend::Backend(QRect screen, QWidget *parent) : QWidget(parent), screenSize(screen)
 {
     setWindowFlags(Qt::WindowType::Dialog | Qt::WindowType::NoDropShadowWindowHint);
     setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
 
-    networkEngine = NetworkEngine::getInstance("127.0.0.1", "8000");
-    std::thread(std::bind(&NetworkEngine::createConnection, networkEngine)).detach();
+    firebase = Firebase::getInstance();
 
     dataEngine = DataEngine::getInstance();
 
@@ -48,7 +47,7 @@ void Backend::renderUi()
     this->setGeometry((screenSize.width()-screenSize.width()*0.20), 0, screenSize.width()*0.20, screenSize.height());
 
     mainLayout->addWidget(tabWidget);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
     addTabBar();
 
 }
@@ -86,11 +85,13 @@ void Backend::createTab(std::string name, bool initialCall)
     auto count = tabWidget->count();
     std::string tabName = (name == "")?tr("Tab %0").arg(QChar('A'+count)).toStdString():name;
 
-    // Check to create missing tab name sequence
+    // NOTE: Check to create missing tab name sequence
     count = 0;
     while(dataEngine->tabBlockMap->find(tabName) != dataEngine->tabBlockMap->end() && !initialCall)
+    {
         tabName = (name == "")?tr("Tab %0").arg(QChar('A'+count++)).toStdString():name;
-
+        firebase->addTab(tabName);
+    }
     dataEngine->createTabMap(tabName);
     tabWidget->addTab(createSplitter(tabName, tabWidget), QString(tabName.c_str()));
     tabWidget->setCurrentIndex(tabWidget->count());
@@ -99,9 +100,10 @@ void Backend::createTab(std::string name, bool initialCall)
 void Backend::removeTab(const int index, const std::string &tabName)
 {
     tabWidget->removeTab(index);
-//    tabWidget->widget(index)->close();
     dataEngine->removeTabMap(tabName);
-    networkEngine->removeTab(tabName);
+
+    firebase->removeTab(tabName);
+//    networkEngine->removeTab(tabName);
 
 }
 
@@ -113,7 +115,6 @@ void Backend::renameTab(int index)
     if(ok)
     {
         tabWidget->setTabText(index, tabName);
-        dataEngine->renameTabMap(oldName.toStdString(), tabName.toStdString());
         auto todoWindow = std::move(tabToWindowsMap->find(oldName.toStdString())->second.first);
         auto doneWindow = std::move(tabToWindowsMap->find(oldName.toStdString())->second.second);
         todoWindow->setTabName(tabName.toStdString());
@@ -122,7 +123,7 @@ void Backend::renameTab(int index)
         tabToWindowsMap->insert(std::make_pair(tabName.toStdString(), std::make_pair(std::move(todoWindow), std::move(doneWindow))));
         tabToWindowsMap->erase(oldName.toStdString());
 
-        networkEngine->renameTab(oldName.toStdString(), tabName.toStdString());
+        firebase->renameTab(oldName.toStdString(), tabName.toStdString());
     }
 
 }
@@ -223,7 +224,7 @@ void Backend::setupSystemTrayIcon()
 void Backend::leaveEvent(QEvent *event)
 {
     event->accept();
-    DataEngine::getInstance()->writeData();
+    firebase->writeData();
 }
 
 void Backend::hideEvent(QHideEvent *)

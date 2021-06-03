@@ -1,19 +1,20 @@
 #include "dataEngine.h"
 #include <QDebug>
+#include <thread>
 
 DataEngine* DataEngine::instance = nullptr;
 
 DataEngine::DataEngine(): fileName{"config.json"}
 {
     tabBlockMap = std::make_shared<std::map<std::string, std::pair< std::shared_ptr<std::map<int64_t, TodoBlock*>>, std::shared_ptr<std::map<int64_t, TodoBlock*>> >>>();
-    networkEngine = NetworkEngine::getInstance();
     config.fontSize = 13;
     config.fontFamily = "Roboto";
 
-    jsonToMap(readData());
+//    readUsername();
+//    jsonToMap(readData());
 
 
-    std::thread(&DataEngine::hashModified, this).detach();
+//    std::thread(&DataEngine::hashModified, this).detach();
 }
 
 DataEngine::~DataEngine()
@@ -139,7 +140,6 @@ void DataEngine::jsonToMap(QJsonObject jObj)
         config.fontFamily = appJ.value("fontFamily").toString().toStdString();
     }
 
-    networkEngine->hashSync(uid, hashVector);
 }
 
 QJsonObject DataEngine::readData()
@@ -167,7 +167,20 @@ void DataEngine::writeData()
         return;
     }
 
-    file.write(mapToJson().toJson());
+//    file.write(mapToJson().toJson());
+    file.close();
+}
+
+void DataEngine::writeData(QJsonDocument json)
+{
+    QFile file(fileName.c_str());
+    if(!file.open(QFile::WriteOnly))
+    {
+        qDebug()<<" Error I/O Writing File "<< fileName.c_str();
+        return;
+    }
+
+    file.write(json.toJson());
     file.close();
 }
 
@@ -210,6 +223,7 @@ void DataEngine::renameTabMap(const std::string &oldName, const std::string &new
 
 void DataEngine::hashModified()
 {
+    return;
     std::cout<<"[!] HashModified Thread Started!"<<std::endl;
     while(true)
     {
@@ -234,9 +248,6 @@ void DataEngine::hashModified()
             }
         }
     }
-    if(!modifiedVecter.empty())
-        networkEngine->writeBlocks(modifiedVecter);
-    sleep(10);
     }
 
 }
@@ -244,4 +255,19 @@ void DataEngine::hashModified()
 void DataEngine::syncWithNetwork()
 {
 
+}
+
+const std::string& DataEngine::readUsername()
+{
+//    auto jObj = readData();
+//    if(jObj.value("appData").toObject().value("username").isUndefined())
+//    {
+//       config.username = "Anon"+std::to_string(rand());
+//       auto json = jObj.value("appData").toObject();
+//       json.insert("username", QString(config.username.c_str()));
+//       writeData(QJsonDocument(json));
+//    }
+//    else
+//        config.username = jObj.value("appData").toObject().value("username").toString().toStdString();
+//    return config.username;
 }

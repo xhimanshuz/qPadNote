@@ -18,8 +18,7 @@
 #include "TodoWindow.h"
 #include "TodoBlock.h"
 #include "dataEngine.h"
-
-class NetworkEngine;
+#include "Firebase.h"
 
 class Backend : public QWidget
 {
@@ -46,6 +45,7 @@ private:
     QRect screenSize;
     QTabWidget *tabWidget;
     DataEngine *dataEngine;
+    Firebase *firebase;
 
     QAction *addTabAction;
     QAction *delTabAction;
@@ -62,7 +62,6 @@ private:
 
     QAction *showAction;
 
-    std::shared_ptr<NetworkEngine> networkEngine;
 };
 
 #endif // BACKEND_H

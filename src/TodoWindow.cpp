@@ -1,13 +1,12 @@
-#include "NetworkEngine.h"
 #include "TodoWindow.h"
 #include "Backend.h"
 #include <QDebug>
 
 TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType type, QObject *backend, QWidget *parent) : QWidget(parent), type(type), backend(backend), tabName(_tabName)
 {
-    networkEngine = NetworkEngine::getInstance();
 
     dataEngine = DataEngine::getInstance();
+    firebase = Firebase::getInstance();
 
     toBlockMap = (type==TodoBlockType::TODO)?dataEngine->tabBlockMap->find(tabName)->second.first:dataEngine->tabBlockMap->find(tabName)->second.second;
     mainLayout = new QVBoxLayout;
@@ -18,7 +17,7 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
     hbox->addStrut(1);
     mainLayout->addLayout(hbox);
     mainLayout->setSpacing(0);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
 
     addLineEdit = new QLineEdit;
     addLineEdit->setMaxLength(25);
@@ -28,7 +27,7 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
             return;
         addBlock(title.toStdString(), tabName);
 
-        dataEngine->writeData();
+//        dataEngine->writeData();
         addLineEdit->clear();
     });
 
@@ -42,7 +41,7 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
     setSignals();
 
     this->setLayout(mainLayout);
-    mainLayout->setMargin(0);
+    mainLayout->setContentsMargins(0,0,0,0);
 
 }
 
@@ -55,7 +54,7 @@ void TodoWindow::renderUi()
 {
     blockVBox = new QVBoxLayout;
     blockVBox->setSpacing(1);
-    blockVBox->setMargin(0);
+    blockVBox->setContentsMargins(0,0,0,0);
     updateTodoBlocks();
     mainLayout->addLayout(blockVBox);
     mainLayout->addStretch(1);
@@ -75,16 +74,16 @@ void TodoWindow::addBlock(std::string title, std::string tabName, int64_t id, in
     if(id == 0)
         id = std::chrono::system_clock::now().time_since_epoch().count();
     TodoBlock *block = new TodoBlock(id, tabName, title, subString, hash, isToDone, uid, this);
-    connect(block, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); dataEngine->writeData(); });
-    connect(block, &TodoBlock::deleteBlock, this, [=](int64_t id){
-        dataEngine->deleteBlock(id, tabName);
-        networkEngine->removeBlock(id);
+    connect(block, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); });
+    connect(block, &TodoBlock::deleteBlock, this, [=](int64_t id, bool isToDone){
+//        dataEngine->deleteBlock(id, tabName);
+        firebase->removeBlock(id, (isToDone)?"toDone":"todo", tabName);
     });
 
-    toBlockMap->insert(std::make_pair(id, block));
+    toBlockMap->insert({id, block});
 
     blockVBox->addWidget(block);
-    networkEngine->writeBlock(*block);
+    firebase->writeBlock(*block);
 }
 
 
@@ -126,6 +125,8 @@ void TodoWindow::moveBlock(bool toggle, int64_t blockId)
 
     //    from->erase(blockId);
     fromBlock->erase(blockId);
+    firebase->moveBlock(std::to_string(blockId), toggle, tabName, std::to_string(block->second->id));
+
 
     updateRender();
 }
@@ -147,11 +148,11 @@ void TodoWindow::setSignals()
 
         connect(i->second, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){
             moveBlock(toggle, id);
-            dataEngine->writeData();
+//            dataEngine->writeData();
         });
-        connect(i->second, &TodoBlock::deleteBlock, this, [=](int64_t id){
-            dataEngine->deleteBlock(id, tabName);
-            networkEngine->removeBlock(id);
+        connect(i->second, &TodoBlock::deleteBlock, this, [=](int64_t id, bool isToDone){
+//            dataEngine->deleteBlock(id, tabName);
+            firebase->removeBlock(id, (isToDone)?"toDone":"todo", tabName);
         });
     }
 }

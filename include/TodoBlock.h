@@ -56,7 +56,7 @@ protected:
     //    QSize sizeHint() const override;
 
 signals:
-    void deleteBlock(int64_t id);
+    void deleteBlock(int64_t id, bool isToDone);
     void moveBlock(bool toggle, int64_t);
 private:
     QWidget *createMoreWidget();
@@ -74,6 +74,9 @@ private:
     const std::string createdTime;
     std::hash<std::string> strHash;
 //    std::shared_ptr<DataEngine> dataEngine;
+
+public:
+    const std::string toString();
 };
 
 #endif // TODOBLOCK_H

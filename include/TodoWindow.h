@@ -14,9 +14,8 @@
 
 #include "TodoBlock.h"
 #include "dataEngine.h"
-class NetworkEngine;
 
-//#include "Backend.h"
+class Firebase;
 
 class TodoWindow : public QWidget
 {
@@ -49,7 +48,7 @@ private:
     std::string tabName;
 
     std::shared_ptr<std::map<int64_t, TodoBlock*>> toBlockMap;
-    std::shared_ptr<NetworkEngine> networkEngine;
+    Firebase *firebase;
 };
 
 #endif // TODOWINDOW_H

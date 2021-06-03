@@ -20,7 +20,7 @@ public:
 
 //    virtual void receiveData() {};
     virtual void receiveBlocks(uint16_t size, uint8_t quantity) = 0;
-
+    // TODO: Have to remove uid
     virtual void removeTab(std::string tid, uint32_t _uid = 0) = 0;
     virtual void renameTab(std::string xtid, std::string tid) = 0;
 };

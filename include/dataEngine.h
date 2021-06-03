@@ -5,7 +5,6 @@
 #include <memory>
 
 #include "TodoBlock.h"
-#include "NetworkEngine.h"
 
 #include <QMap>
 #include <QJsonDocument>
@@ -19,6 +18,7 @@ struct Config
 {
     int fontSize = 13;
     std::string fontFamily = "Roboto";
+    std::string username;
 
     Config(): fontSize(13), fontFamily("Roboto")
     {
@@ -33,7 +33,6 @@ class DataEngine
     QJsonDocument mapToJson();
 
     std::string fileName;
-    std::shared_ptr<NetworkEngine> networkEngine;
 public:
     DataEngine();
     ~DataEngine();
@@ -44,13 +43,15 @@ public:
     void renameTabMap(const std::string& oldName, const std::string& newName);
     void hashModified();
     void syncWithNetwork();
-
+    const std::string& readUsername();
     std::shared_ptr<std::map<std::string, std::pair< std::shared_ptr<std::map<int64_t, TodoBlock*>>, std::shared_ptr<std::map<int64_t, TodoBlock*>>> >> tabBlockMap;
+
 
     static DataEngine* instance;
     static DataEngine* getInstance();
 
     Config config;
+    void writeData(QJsonDocument json);
 
 };
 

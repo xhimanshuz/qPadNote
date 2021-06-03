@@ -26,7 +26,7 @@ void TodoBlock::renderUi()
     });
 
     QHBoxLayout *hbox = new QHBoxLayout;
-    hbox->setMargin(2);
+//    hbox->setMargin(2);
     hbox->addWidget(titleCheckbox, 1, Qt::AlignmentFlag::AlignLeft);
     hbox->addStretch();
 
@@ -50,7 +50,7 @@ void TodoBlock::renderUi()
     });
 //    hbox->addWidget(dateLabel, 0, Qt::AlignmentFlag::AlignRight);
     deleteToolButton = new QAction;
-    connect(deleteToolButton, &QAction::triggered, this, [=]{ emit deleteBlock(id); });
+    connect(deleteToolButton, &QAction::triggered, this, [=]{ emit deleteBlock(id, isToDone); });
     deleteToolButton->setIcon(QIcon("://remove.png"));
 
     blockToolBar = new QToolBar;
@@ -67,7 +67,7 @@ void TodoBlock::renderUi()
 
     mainLayout->addWidget(createMoreWidget());
 
-    mainLayout->setMargin(0);
+//    mainLayout->setContentsMargins(0,0,0,0);
 
     connectSignalSlot();
 }
@@ -95,6 +95,14 @@ bool TodoBlock::isHashModified()
 void TodoBlock::connectSignalSlot()
 {
 
+}
+
+const std::string TodoBlock::toString()
+{
+        std::stringstream ss;
+        ss << "[!] TodoBlock: [ id: "<<id<<" tid: "<< tid<<" title: "<< title
+           << " subString: "<< subString<<" hash: "<< hash<<" isToDone: "<<isToDone<<" ]\n";
+        return ss.str();
 }
 
 QWidget* TodoBlock::createMoreWidget()
@@ -137,7 +145,7 @@ QWidget* TodoBlock::createMoreWidget()
     hbox->addStretch();
     hbox->addLayout(tVBox);
     subLayout->addLayout(hbox);
-    hbox->setMargin(0);
+    hbox->setContentsMargins(0,0,0,0);
 
     subWidget = new QWidget;
     subWidget->setLayout(subLayout);
