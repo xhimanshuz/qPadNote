@@ -12,7 +12,8 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
     mainLayout = new QVBoxLayout;
 
     QHBoxLayout *hbox = new QHBoxLayout;
-    titleLable = new QLabel(tr("<h1> %0 </h1>").arg(title.c_str()));
+    titleLable = new QLabel(tr("<h1>> %0 </h1>").arg(title.c_str()));
+    titleLable->setStyleSheet(QString("color: #%0; margin-left: 10px; border-bottom: 0.5px solid %0; border-radius: 0px;").arg((type==TodoBlockType::TODO)?"ffd600":"00e676"));
     hbox->addWidget(titleLable, 0, Qt::AlignmentFlag::AlignTop);
     hbox->addStrut(1);
     mainLayout->addLayout(hbox);
@@ -21,6 +22,7 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
 
     addLineEdit = new QLineEdit;
     addLineEdit->setMaxLength(25);
+    addLineEdit->setPlaceholderText("ENTER TASK HERE _");
     connect(addLineEdit, &QLineEdit::returnPressed, [=]{
         QString title = addLineEdit->text();
         if(title.isEmpty())
@@ -76,7 +78,7 @@ void TodoWindow::addBlock(std::string title, std::string tabName, int64_t id, in
     TodoBlock *block = new TodoBlock(id, tabName, title, subString, hash, isToDone, uid, this);
     connect(block, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); });
     connect(block, &TodoBlock::deleteBlock, this, [=](int64_t id, bool isToDone){
-//        dataEngine->deleteBlock(id, tabName);
+        dataEngine->deleteBlock(id, tabName);
         firebase->removeBlock(id, (isToDone)?"toDone":"todo", tabName);
     });
 
@@ -145,13 +147,9 @@ void TodoWindow::setSignals()
 {
     for(auto i=toBlockMap->begin(); i!=toBlockMap->end(); ++i)
     {
-
-        connect(i->second, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){
-            moveBlock(toggle, id);
-//            dataEngine->writeData();
-        });
+        connect(i->second, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); });
         connect(i->second, &TodoBlock::deleteBlock, this, [=](int64_t id, bool isToDone){
-//            dataEngine->deleteBlock(id, tabName);
+            dataEngine->deleteBlock(id, tabName);
             firebase->removeBlock(id, (isToDone)?"toDone":"todo", tabName);
         });
     }

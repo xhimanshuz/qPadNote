@@ -5,6 +5,8 @@ TodoBlock::TodoBlock(int64_t _id, std::string _tid, std::string _title, std::str
     id{_id}, tid{_tid}, title(_title), subString{_subString}, hash{makeHash()}, isToDone{_toDone}, uid{_uid}, position{0}, showSub{true}
 {
 //    dataEngine = DataEngine::getInstance();
+    setObjectName("todoBlock");
+//    setStyleSheet(" border-bottom: 0.5px solid white; border-radius: 0px;");
     this->setParent(parent);
     if( _hash != hash )
         std::cout<<"[!] Hash not match old hash: "<< _hash<< " new Hash: "<<hash <<std::endl;
@@ -15,10 +17,8 @@ TodoBlock::TodoBlock(int64_t _id, std::string _tid, std::string _title, std::str
 
 void TodoBlock::renderUi()
 {
-//    auto dataEngine = DataEngine::getInstance();
     titleCheckbox = new QCheckBox(title.c_str());
     titleCheckbox->setToolTip(getStatusTip());
-//    titleCheckbox->setFont(QFont(QString(dataEngine->config.fontFamily.c_str()), dataEngine->config.fontSize, QFont::Bold));
 
     titleCheckbox->setChecked(isToDone);
     connect(titleCheckbox, &QCheckBox::toggled, [=](bool toggle){

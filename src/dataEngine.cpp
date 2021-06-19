@@ -199,7 +199,7 @@ void DataEngine::deleteBlock(int64_t id, const std::string tabName)
        tMap->second.second->erase(id);
    }
 
-    writeData();
+//    writeData();
 }
 
 void DataEngine::createTabMap(const std::string &tabName)
