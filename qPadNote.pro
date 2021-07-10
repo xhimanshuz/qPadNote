@@ -30,7 +30,8 @@ HEADERS += \
 
 INCLUDEPATH += include \
             /usr/local/include/mongocxx/v_noabi \
-            /usr/local/include/bsoncxx/v_noabi
+            /usr/local/include/bsoncxx/v_noabi \
+            /usr/local/include/
 
 RESOURCES += \
     Data/ResourceFile.qrc
@@ -39,7 +40,7 @@ DESTDIR = $$PWD/build/
 
 DISTFILES = $$PWD/build/config.json \
             README.md \
-            build/stylesheet.qss
+            stylesheet.qss
 
 LIBS += -Wl,--verbose \
         -L$$PWD/lib -lfirebase_auth -lfirebase_database -lfirebase_analytics -lfirebase_app -lpthread -lglib-2.0 -lsecret-1

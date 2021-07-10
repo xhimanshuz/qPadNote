@@ -39,3 +39,7 @@ Makefile
 
 build-*
 *.json
+moc_*
+
+build/*
+build
