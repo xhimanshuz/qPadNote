@@ -11,5 +11,6 @@
         <file>icon.svg</file>
         <file>icon.ico</file>
         <file>user.png</file>
+        <file>stylesheet.qss</file>
     </qresource>
 </RCC>

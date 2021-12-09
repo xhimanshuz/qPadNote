@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
 
-    QFile f("../stylesheet.qss");
+    QFile f("://stylesheet.qss");
     if(f.open(QFile::ReadOnly))
     {
         std::cout << "[!] Stylesheet Set" <<std::endl;
