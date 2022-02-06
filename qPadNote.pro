@@ -1,6 +1,5 @@
 QT += widgets network
-CONFIG += c++17 static staticlib
-QMAKE_CXXFLAGS += -static
+CONFIG += c++17
 
 SOURCES += \
     applicationconfig.cpp \
@@ -31,7 +30,7 @@ HEADERS += \
 INCLUDEPATH += include \
             /usr/local/include/mongocxx/v_noabi \
             /usr/local/include/bsoncxx/v_noabi \
-            /usr/local/include/
+            /usr/local/include/qPadNode.json
 
 RESOURCES += \
     Data/ResourceFile.qrc
@@ -40,7 +39,8 @@ DESTDIR = $$PWD/build/
 
 DISTFILES = $$PWD/build/config.json \
             README.md \
-            stylesheet.qss
+            stylesheet.qss \
+            $$PWD/build/qPadNote.conf
 
-LIBS += -Wl,--verbose \
+LIBS +=  \
         -L$$PWD/lib -lfirebase_auth -lfirebase_database -lfirebase_analytics -lfirebase_app -lpthread -lglib-2.0 -lsecret-1

@@ -28,12 +28,12 @@ struct Config
 
 class DataEngine
 {
-    void jsonToMap(QJsonObject jObj);
     QJsonObject readData();
     QJsonDocument mapToJson();
 
     std::string fileName;
 public:
+ void jsonToMap(QJsonObject jObj);
     DataEngine();
     ~DataEngine();
     void writeData();

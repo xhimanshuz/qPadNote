@@ -1,7 +1,9 @@
 #include "Backend.h"
-#include "userui.h"
+
 #include <QDebug>
 #include <QScrollArea>
+
+#include "userui.h"
 
 Backend::Backend(QRect screen, QWidget *parent)
     : QWidget(parent), screenSize(screen) {
@@ -11,7 +13,7 @@ Backend::Backend(QRect screen, QWidget *parent)
                  Qt::WindowType::FramelessWindowHint);
   setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
 
-  firebase = Firebase::getInstance();
+  io = Firebase::getInstance();
 
   dataEngine = DataEngine::getInstance();
 
@@ -100,7 +102,7 @@ void Backend::createTab(std::string name, bool initialCall) {
     tabName = (name == "")
                   ? tr("Tab %0").arg(QChar('A' + count++)).toStdString()
                   : name;
-    firebase->addTab(tabName);
+    io->addTab(tabName);
   }
   dataEngine->createTabMap(tabName);
   tabWidget->addTab(createSplitter(tabName, tabWidget),
@@ -112,7 +114,7 @@ void Backend::removeTab(const int index, const std::string &tabName) {
   tabWidget->removeTab(index);
   dataEngine->removeTabMap(tabName);
 
-  firebase->removeTab(tabName);
+  io->removeTab(tabName);
   //    networkEngine->removeTab(tabName);
 }
 
@@ -136,7 +138,7 @@ void Backend::renameTab(int index) {
         std::make_pair(std::move(todoWindow), std::move(doneWindow))));
     tabToWindowsMap->erase(oldName.toStdString());
 
-    firebase->renameTab(oldName.toStdString(), tabName.toStdString());
+    io->renameTab(oldName.toStdString(), tabName.toStdString());
   }
 }
 
@@ -245,7 +247,7 @@ void Backend::setupSystemTrayIcon() {
 
 void Backend::leaveEvent(QEvent *event) {
   event->accept();
-  firebase->writeData();
+  io->writeData();
 }
 
 void Backend::hideEvent(QHideEvent *) {

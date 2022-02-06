@@ -31,6 +31,7 @@ public:
     const std::string getTabName() const;
     void setTabName(const std::string &tabName);
     void setSignals();
+    void setBlockSignals(TodoBlock *block);
 
 protected:
 

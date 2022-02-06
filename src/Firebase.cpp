@@ -8,34 +8,30 @@ Firebase *Firebase::instance = nullptr;
 Firebase::Firebase() {
   dataEngine = DataEngine::getInstance();
 
+  // Firebase App objection creation.
   auto option = firebase::AppOptions();
-  option.set_database_url("https://qpadnote-id-default-rtdb.firebaseio.com/");
+  option.set_database_url("https://qpadnote-id-default-rtdb.firebaseio.com");
   app = firebase::App::Create(option);
 
+  // Firebase Auth object creation.
   auth = new FirebaseAuth(app);
   appConfig = ApplicationConfig::getInstance();
   if (!appConfig->loadSetting("qPadNote.conf"))
     qDebug() << "Error In loading Config";
+
+  // Firebase Database object creation.
   db = firebase::database::Database::GetInstance(app);
   db->PurgeOutstandingWrites();
-  db->set_persistence_enabled(true);
-
-  firebase::analytics::Initialize(*app);
-  firebase::analytics::SetAnalyticsCollectionEnabled(true);
-  firebase::analytics::SetUserId(username.c_str());
-  firebase::analytics::LogEvent("Started");
-  firebase::analytics::LogEvent("name", "p_name", "p_value");
+  //  db->set_persistence_enabled(true);
 
   if (authenticate()) {
     std::string block = blockRef.key_string();
     std::cout << "BlocksRef: " << block << std::endl;
     assert("blocks" == blockRef.key_string());
-
-    fetchAll();
   }
 }
 
-Firebase::~Firebase() { firebase::analytics::Terminate(); }
+Firebase::~Firebase() {}
 
 void Firebase::writeData() { hashModified(); }
 
@@ -62,9 +58,6 @@ void Firebase::writeBlocks(std::vector<TodoBlock *> &blocksVector) {
   for (auto block : blocksVector)
     writeBlock(*block);
 }
-
-bool Firebase::writeHeader(Protocol::TYPE _type, uint16_t _bodySize,
-                           uint8_t _quantity) {}
 
 void Firebase::removeBlock(int64_t _id) {}
 
@@ -105,97 +98,111 @@ void Firebase::removeBlock(int64_t id, const std::string todo,
   blockRef.Child(tid).Child(todo).Child(std::to_string(id)).RemoveValue();
 }
 
-// TODO: check hashVector
-void Firebase::fetchAll() {
+//// TODO: check hashVector
+void Firebase::fetchAll()
+{
   std::vector<uint32_t> hashVector;
-  //    int16_t uid{0};
+  int16_t uid{0};
   auto blockSnapshot = blockRef.GetValue();
   auto snapshot = getSnapshot(blockSnapshot);
-  if (!snapshot)
+  if(!snapshot)
     return;
+  auto value = snapshot;
 
-  for (auto &tab : snapshot.value()->children()) {
-    auto tabName = tab.key_string();
-    auto todoBlockMap = std::make_shared<std::map<int64_t, TodoBlock *>>();
-    auto doneBlockMap = std::make_shared<std::map<int64_t, TodoBlock *>>();
-    for (auto &toDone : tab.children()) {
-      for (auto &block : toDone.children()) {
-
-        auto blockMap = block.value().map();
-        auto id = std::atol(block.key_string().c_str());
-        auto position = blockMap["position"].int64_value();
-        auto subString = blockMap["subString"].string_value();
-        auto tid = blockMap["tid"].string_value();
-        auto title = blockMap["title"].string_value();
-        auto isToDone = blockMap["isToDone"].bool_value();
-        auto hash = blockMap["hash"].int64_value();
-        auto uid = blockMap["uid"].string_value();
-
-        ((isToDone) ? doneBlockMap : todoBlockMap)
-            ->insert({id, new TodoBlock(id, tabName, title, subString, hash,
-                                        isToDone)});
+  QJsonObject json;
+  for (auto &tab : value->children()) {
+    json.insert(tab.key(), {});
+    dataEngine->createTabMap(tab.key_string());
+    QJsonObject todoJson;
+    for(auto const td: {"todo", "toDone"}) {
+      json[tab.key()].toObject().insert(td, {});
+      if(tab.HasChild(td)) {
+        QJsonObject blockJson;
+        for(auto& block: tab.Child(td).children()) {
+          std::cout << block.GetReference().url() << std::endl;
+          blockJson.insert(block.key(),
+                           QJsonObject {
+                               {"id", block.Child("id").value().mutable_string().c_str()},
+                               {"position",  QJsonValue::fromVariant(QVariant::fromValue(block.Child("position").value().int64_value()))},
+                               {"subString", block.Child("subString").value().mutable_string().c_str()},
+                               {"tabName", block.Child("tid").value().mutable_string().c_str()},
+                               {"title", block.Child("title").value().mutable_string().c_str()},
+                               {"type", block.Child("isToDone").value().bool_value()},
+                               {"uid", block.Child("uid").value().mutable_string().c_str()},
+                               {"hash", QJsonValue::fromVariant(QVariant::fromValue(block.Child("hash").value().int64_value()))}
+                           });
+        }
+        todoJson.insert(td, blockJson);
       }
     }
-    dataEngine->tabBlockMap->insert(
-        std::make_pair(tabName, std::make_pair(todoBlockMap, doneBlockMap)));
+    json.insert(tab.key(), todoJson);
+  }
+  dataEngine->jsonToMap(QJsonObject{{"userData", json}});
+}
+
+void Firebase::hashModified()
+{
+
+}
+
+void Firebase::moveBlock(std::string xid, bool toogle, std::string tid, std::string id)
+{
+  if(toogle) {
+    auto from = getSnapshot(blockRef.Child(tid).Child("todo").Child(xid).GetValue());
+    if(!from || !from->is_valid())
+      return;
+    auto value = from->value();
+    blockRef.Child(tid).Child("toDone").Child(id).SetValue(value);
+    blockRef.Child(tid).Child("todo").Child(xid).RemoveValue();
+  }
+  else {
+    auto from = getSnapshot(blockRef.Child(tid).Child("toDone").Child(xid).GetValue());
+    if(!from || !from->is_valid())
+      return;
+    auto value = from->value();
+    blockRef.Child(tid).Child("todo").Child(id).SetValue(value);
+    blockRef.Child(tid).Child("toDone").Child(xid).RemoveValue();
   }
 }
 
-void Firebase::hashModified() {
-  std::cout << "[!] HashModified!" << std::endl;
-  std::vector<TodoBlock *> modifiedVecter;
-  for (auto tab : *dataEngine->tabBlockMap) {
-    for (auto block : *tab.second.first) {
-      if (block.second->isHashModified()) {
-        block.second->hash = block.second->makeHash();
-        modifiedVecter.push_back(block.second);
-      }
-    }
-
-    for (auto block : *tab.second.second) {
-      if (block.second->isHashModified()) {
-        block.second->hash = block.second->makeHash();
-        modifiedVecter.push_back(block.second);
-      }
+const firebase::database::DataSnapshot * Firebase::async_getSnapshot(firebase::Future<firebase::database::DataSnapshot> result)
+{
+  std::cout << "result status: " << result.status() << std::endl;
+  if (result.status() != firebase::kFutureStatusPending) {
+    if (result.status() != firebase::kFutureStatusComplete) {
+      printf("ERROR: GetValue() returned an invalid result.\n");
+      return nullptr;
+      // Handle the error...
+    } else if (result.error() != firebase::database::kErrorNone) {
+      printf("ERROR: GetValue() returned error %d: %s\n", result.error(),
+                 result.error_message());
+      return nullptr;
+      // Handle the error...
     }
   }
-  if (!modifiedVecter.empty())
-    writeBlocks(modifiedVecter);
+  const firebase::database::DataSnapshot* snapshot = result.result();
+  return snapshot;
 }
 
-void Firebase::moveBlock(std::string xid, bool toogle, std::string tid,
-                         std::string id) {
-  auto blockPromise = blockRef.Child(tid)
-                          .Child((toogle) ? "todo" : "toDone")
-                          .Child(xid)
-                          .GetValue();
-  auto block = getSnapshot(blockPromise);
-  if (!block) {
-    std::cerr << "[x] Error in moveing block " << xid << " tid: " << tid;
-    return;
-  }
+const firebase::database::DataSnapshot * Firebase::getSnapshot(firebase::Future<firebase::database::DataSnapshot> result)
+{
+  while(result.status() == firebase::kFutureStatusPending);
 
-  blockRef.Child(tid)
-      .Child((!toogle) ? "todo" : "toDone")
-      .Child(id)
-      .SetValue(block.value()->value());
-  blockRef.Child(tid)
-      .Child((toogle) ? "todo" : "toDone")
-      .Child(xid)
-      .RemoveValue();
-}
-
-inline std::optional<const firebase::database::DataSnapshot *>
-Firebase::getSnapshot(
-    firebase::Future<firebase::database::DataSnapshot> snapshot) {
-  if (snapshot.error()) {
-    std::cout << "[x] Error while fecthing snapshot" << snapshot.error_message()
-              << std::endl;
-    return std::nullopt;
+  std::cout << "result status: " << result.status() << std::endl;
+  if (result.status() != firebase::kFutureStatusPending) {
+    if (result.status() != firebase::kFutureStatusComplete) {
+      printf("ERROR: GetValue() returned an invalid result.\n");
+      return nullptr;
+      // Handle the error...
+    } else if (result.error() != firebase::database::kErrorNone) {
+      printf("ERROR: GetValue() returned error %d: %s\n", result.error(),
+             result.error_message());
+      return nullptr;
+      // Handle the error...
+    }
   }
-  while (snapshot.status() == firebase::FutureStatus::kFutureStatusPending)
-    ;
-  return std::make_optional(snapshot.result());
+  const firebase::database::DataSnapshot* snapshot = result.result();
+  return snapshot;
 }
 
 Firebase *Firebase::getInstance() {
@@ -211,11 +218,15 @@ bool Firebase::authenticate() {
 
   auto email = appConfig->getEmail();
   auto type = appConfig->getUserType();
+  auto password = appConfig->getPassword();
 
-  auto user = auth->signIn(type, email);
+  auto user = auth->signIn(type, email, password);
   if (!user)
     return false;
-  loginSuccessed(user);
+  if(type == UserType::MANUAL)
+    loginSuccessed(user, password);
+  else
+    loginSuccessed(user);
   return true;
 }
 
@@ -223,7 +234,7 @@ bool Firebase::doSignIn(const QString &email, const QString &password) {
   auto user = auth->signIn(UserType::MANUAL, email, password);
   if (!user)
     return false;
-  loginSuccessed(user);
+  loginSuccessed(user, password);
   return true;
 }
 
@@ -231,7 +242,7 @@ bool Firebase::doSignUp(const QString &email, const QString &password) {
   auto user = auth->signUp(UserType::MANUAL, email, password);
   if (!user)
     return false;
-  loginSuccessed(user);
+  loginSuccessed(user, password);
   return true;
 }
 
@@ -247,11 +258,36 @@ void Firebase::loginSuccessed(firebase::auth::User *user) {
 
   std::cout << "[!] Current Username: " << username << std::endl;
   blockRef = db->GetReference("data")
-                 .Child(username)
+                 .Child(user->uid())
                  .Child("app_data")
-                 .Child("blocks");
+                 .Child("blocks").GetReference();
+
   std::string block = blockRef.key_string();
-  std::cout << "BlocksRef: " << block << std::endl;
+  std::cout << "BlocksRef: " << block << " " << blockRef.url() << " " << blockRef.is_valid() << std::endl;
+  assert("blocks" == blockRef.key_string());
+
+  fetchAll();
+}
+
+void Firebase::loginSuccessed(firebase::auth::User *user, const QString &password)
+{
+  appConfig->setManualUser(user, password);
+  appConfig->writeUser();
+  appConfig->getUserInfo();
+  appConfig->setLoggedIn(true);
+
+  username = (appConfig->getUser()->is_anonymous())
+                 ? appConfig->getUser()->uid()
+                 : appConfig->getUser()->email();
+
+  std::cout << "[!] Current Username: " << username << std::endl;
+  blockRef = db->GetReference("data")
+                 .Child(user->uid())
+                 .Child("app_data")
+                 .Child("blocks").GetReference();
+
+  std::string block = blockRef.key_string();
+  std::cout << "BlocksRef: " << block << " " << blockRef.url() << " " << blockRef.is_valid() << std::endl;
   assert("blocks" == blockRef.key_string());
 
   fetchAll();

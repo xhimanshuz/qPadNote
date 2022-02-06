@@ -128,8 +128,7 @@ void DataEngine::jsonToMap(QJsonObject jObj)
             doneBlockMap->insert(std::make_pair(id, new TodoBlock(id, tabName, title, subString, hash, type, uid)));
             hashVector.push_back(hash);
         }
-
-        tabBlockMap->insert(std::make_pair(tabName, std::make_pair(todoBlockMap, doneBlockMap)));
+        (*tabBlockMap)[tabName] = std::make_pair(todoBlockMap, doneBlockMap);
 
     }
 

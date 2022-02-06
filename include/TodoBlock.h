@@ -58,6 +58,7 @@ protected:
 signals:
     void deleteBlock(int64_t id, bool isToDone);
     void moveBlock(bool toggle, int64_t);
+    void updated(TodoBlock* block);
 private:
     QWidget *createMoreWidget();
     void connectSignalSlot();

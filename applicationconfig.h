@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QString>
+#include <chrono>
 #include <iostream>
 
 namespace firebase::auth {
@@ -22,6 +23,7 @@ enum class UserType : char {
 class ApplicationConfig {
   UserType _type;
   QString _email;
+  QString _password;
   bool _loggedIn;
   QString _filename;
   firebase::auth::User *_user;
@@ -31,7 +33,7 @@ public:
   ~ApplicationConfig();
 
   bool loadSetting(const QString &filename);
-  bool writeSetting(const QString email, UserType type);
+  bool writeSetting(const QString email, UserType type, QString const& password = "");
 
   UserType getUserType() const;
   QString getEmail() const;
@@ -43,10 +45,13 @@ public:
   void setEmail(const QString &email);
   void setLoggedIn(bool status);
   void setUser(firebase::auth::User *user);
+  void setManualUser(firebase::auth::User *user, QString const &password);
   void writeUser();
 
   static ApplicationConfig *getInstance();
   static ApplicationConfig *instance;
+  void setPassword(const QString &newPassword);
+  const QString &getPassword() const;
 };
 
 #endif // APPLICATIONCONFIG_H

@@ -1,8 +1,10 @@
 #include "userui.h"
 #include "Firebase.h"
+#include "applicationconfig.h"
 
 UserUI::UserUI(QWidget *parent) : QDialog(parent) {
   mainLayout = new QVBoxLayout;
+  appConfig = ApplicationConfig::getInstance();
   renderUi();
   setLayout(mainLayout);
   setWindowFlags(Qt::WindowType::FramelessWindowHint);
@@ -12,7 +14,10 @@ void UserUI::renderUi() {
   stackLaytout = new QStackedLayout;
   stackLaytout->addWidget(signInWidget());
   stackLaytout->addWidget(signUpWidget());
-  stackLaytout->addWidget(userDetail());
+  if(appConfig->isLoggedIn()) {
+    stackLaytout->addWidget(userDetail());
+    stackLaytout->setCurrentIndex(2);
+  }
   mainLayout->addLayout(stackLaytout);
 
   statusBar = new QStatusBar(this);
@@ -107,4 +112,19 @@ QWidget *UserUI::signInWidget() {
   return _signInWidget;
 }
 
-QWidget *UserUI::userDetail() { return new QWidget; }
+QWidget *UserUI::userDetail() {
+  QLabel *heading = new QLabel("<h2>`User Detail<h2>", this);
+  QFormLayout *form = new QFormLayout(this);
+  form->addWidget(heading);
+  form->addRow("Email", new QLabel(appConfig->getEmail()));
+  form->addRow("UID", new QLabel(appConfig->getUser()->uid().c_str()));
+  inLogoutPushButton = new QPushButton("Logout");
+  QHBoxLayout *buttonBox = new QHBoxLayout;
+  buttonBox->addStretch();
+  buttonBox->addWidget(inLogoutPushButton);
+  form->addItem(buttonBox);
+
+  QWidget* userDetailWidget = new QWidget(this);
+  userDetailWidget->setLayout(form);
+  return userDetailWidget;
+}

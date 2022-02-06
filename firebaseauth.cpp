@@ -34,7 +34,7 @@ firebase::auth::User *FirebaseAuth::signUp(const UserType type,
 
   switch (type) {
   case UserType::ANONYMOUS: {
-    userFuture = _auth->SignInAnonymously();
+//    userFuture = _auth->SignInAnonymously();
     break;
   }
   case UserType::MANUAL: {
@@ -48,6 +48,7 @@ firebase::auth::User *FirebaseAuth::signUp(const UserType type,
 
   auto user = syncFuture<firebase::auth::User>(userFuture);
 
+//  user->email() = "1321";
   return user;
 }
 

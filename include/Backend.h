@@ -23,49 +23,49 @@
 
 class Backend : public QWidget {
   Q_OBJECT
-public:
-  explicit Backend(QRect screen, QWidget *parent = nullptr);
+ public:
+  explicit Backend(QRect screen, QWidget* parent = nullptr);
   ~Backend();
   void renderUi();
-  void updateTodoWindow(const std::string &tabName);
+  void updateTodoWindow(const std::string& tabName);
 
-  QSplitter *createSplitter(const std::string &tabName,
-                            QWidget *parent = nullptr);
+  QSplitter* createSplitter(const std::string& tabName,
+                            QWidget* parent = nullptr);
   void createTab(std::string name = "", bool initialCall = false);
-  void removeTab(const int index, const std::string &tabName);
+  void removeTab(const int index, const std::string& tabName);
   void renameTab(int index);
   void createTabByFile();
   void addTabBar();
   void setupSystemTrayIcon();
 
-protected:
-  void leaveEvent(QEvent *event) override;
-  void hideEvent(QHideEvent *event) override;
+ protected:
+  void leaveEvent(QEvent* event) override;
+  void hideEvent(QHideEvent* event) override;
 
-private:
-  QVBoxLayout *mainLayout;
+ private:
+  QVBoxLayout* mainLayout;
   QRect screenSize;
-  QTabWidget *tabWidget;
-  DataEngine *dataEngine;
-  Firebase *firebase;
+  QTabWidget* tabWidget;
+  DataEngine* dataEngine;
+  AbstractIO* io;
 
-  QAction *addTabAction;
-  QAction *delTabAction;
-  QAction *editTabAction;
-  QAction *closeAction;
+  QAction* addTabAction;
+  QAction* delTabAction;
+  QAction* editTabAction;
+  QAction* closeAction;
   //    QAction *minimizeToTray;
-  QToolButton *moreTabToolButton;
+  QToolButton* moreTabToolButton;
 
-  QToolButton *userInfoButton;
+  QToolButton* userInfoButton;
 
-  QToolBar *tabToolBar;
-  std::shared_ptr<std::map<std::string, std::pair<TodoWindow *, TodoWindow *>>>
+  QToolBar* tabToolBar;
+  std::shared_ptr<std::map<std::string, std::pair<TodoWindow*, TodoWindow*>>>
       tabToWindowsMap;
 
-  QSystemTrayIcon *sysTrayIcon;
-  QMenu *menu;
+  QSystemTrayIcon* sysTrayIcon;
+  QMenu* menu;
 
-  QAction *showAction;
+  QAction* showAction;
 };
 
-#endif // BACKEND_H
+#endif  // BACKEND_H

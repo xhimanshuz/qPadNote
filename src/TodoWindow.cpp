@@ -76,14 +76,13 @@ void TodoWindow::addBlock(std::string title, std::string tabName, int64_t id, in
     if(id == 0)
         id = std::chrono::system_clock::now().time_since_epoch().count();
     TodoBlock *block = new TodoBlock(id, tabName, title, subString, hash, isToDone, uid, this);
-    connect(block, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); });
-    connect(block, &TodoBlock::deleteBlock, this, [=](int64_t id, bool isToDone){
-        dataEngine->deleteBlock(id, tabName);
-        firebase->removeBlock(id, (isToDone)?"toDone":"todo", tabName);
-    });
-
+    setBlockSignals(block);
+//    connect(block, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); });
+//    connect(block, &TodoBlock::deleteBlock, this, [=](int64_t id, bool isToDone){
+//        dataEngine->deleteBlock(id, tabName);
+//        firebase->removeBlock(id, (isToDone)?"toDone":"todo", tabName);
+//    });
     toBlockMap->insert({id, block});
-
     blockVBox->addWidget(block);
     firebase->writeBlock(*block);
 }
@@ -145,14 +144,19 @@ void TodoWindow::setTabName(const std::string &_tabName)
 
 void TodoWindow::setSignals()
 {
-    for(auto i=toBlockMap->begin(); i!=toBlockMap->end(); ++i)
-    {
-        connect(i->second, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); });
-        connect(i->second, &TodoBlock::deleteBlock, this, [=](int64_t id, bool isToDone){
-            dataEngine->deleteBlock(id, tabName);
-            firebase->removeBlock(id, (isToDone)?"toDone":"todo", tabName);
-        });
+    for(auto i=toBlockMap->begin(); i!=toBlockMap->end(); ++i) {
+      setBlockSignals(i->second);
     }
+}
+
+void TodoWindow::setBlockSignals(TodoBlock *block)
+{
+  connect(block, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){ moveBlock(toggle, id); });
+  connect(block, &TodoBlock::deleteBlock, this, [=](int64_t id, bool isToDone){
+    dataEngine->deleteBlock(id, tabName);
+    firebase->removeBlock(id, (isToDone)?"toDone":"todo", tabName);
+  });
+  connect(block, &TodoBlock::updated, [&](TodoBlock *current_block){ firebase->writeBlock(*current_block); });
 }
 
 void TodoWindow::updateRender()

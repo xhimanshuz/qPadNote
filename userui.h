@@ -11,6 +11,8 @@
 #include <QStatusBar>
 #include <QVBoxLayout>
 
+class ApplicationConfig;
+
 class UserUI : public QDialog {
   Q_OBJECT
 public:
@@ -29,6 +31,7 @@ public:
   QPushButton *upSignUpButton;
   QPushButton *upSignInButton;
   QStatusBar *statusBar;
+  ApplicationConfig *appConfig;
 
   void renderUi();
   void signalAndSlot();

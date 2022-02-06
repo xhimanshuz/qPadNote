@@ -94,7 +94,10 @@ bool TodoBlock::isHashModified()
 
 void TodoBlock::connectSignalSlot()
 {
-
+  connect(subStringTE, &QTextEdit::textChanged, [&](){
+    subString = subStringTE->toPlainText().toStdString();
+    emit updated(this);
+  });
 }
 
 const std::string TodoBlock::toString()
