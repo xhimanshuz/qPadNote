@@ -43,7 +43,7 @@ void Firebase::writeBlock(TodoBlock &todoBlock) {
   block["subString"] = todoBlock.subString;
   block["tid"] = todoBlock.tid;
   block["title"] = todoBlock.title;
-  block["isToDone"] = todoBlock.isToDone;
+  block["isToDone"] = (todoBlock.isToDone)?1:0;
   block["hash"] = static_cast<int64_t>(todoBlock.hash);
   block["uid"] = std::to_string(todoBlock.uid);
 
@@ -127,7 +127,7 @@ void Firebase::fetchAll()
                                {"subString", block.Child("subString").value().mutable_string().c_str()},
                                {"tabName", block.Child("tid").value().mutable_string().c_str()},
                                {"title", block.Child("title").value().mutable_string().c_str()},
-                               {"type", block.Child("isToDone").value().bool_value()},
+                               {"type", QVariant::fromValue(block.Child("isToDone").value().int64_value()).toBool()},
                                {"uid", block.Child("uid").value().mutable_string().c_str()},
                                {"hash", QJsonValue::fromVariant(QVariant::fromValue(block.Child("hash").value().int64_value()))}
                            });
@@ -153,6 +153,7 @@ void Firebase::moveBlock(std::string xid, bool toogle, std::string tid, std::str
       return;
     auto value = from->value();
     blockRef.Child(tid).Child("toDone").Child(id).SetValue(value);
+    blockRef.Child(tid).Child("toDone").Child(id).Child("isToDone").SetValue(1);
     blockRef.Child(tid).Child("todo").Child(xid).RemoveValue();
   }
   else {
@@ -161,6 +162,7 @@ void Firebase::moveBlock(std::string xid, bool toogle, std::string tid, std::str
       return;
     auto value = from->value();
     blockRef.Child(tid).Child("todo").Child(id).SetValue(value);
+    blockRef.Child(tid).Child("todo").Child(id).Child("isToDone").SetValue(0);
     blockRef.Child(tid).Child("toDone").Child(xid).RemoveValue();
   }
 }
