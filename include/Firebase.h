@@ -4,7 +4,6 @@
 #include <firebaseauth.h>
 #include <stdlib.h>
 
-#include <optional>
 #include <QJsonObject>
 #include <QVariant>
 
