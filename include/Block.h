@@ -15,7 +15,7 @@
 #include "TodoBlock.h"
 
 #endif
-
+#include <stdint.h>
 #include <iostream>
 #include <sstream>
 #include <string>

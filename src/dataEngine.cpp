@@ -258,6 +258,7 @@ void DataEngine::syncWithNetwork()
 
 const std::string& DataEngine::readUsername()
 {
+    return "";
 //    auto jObj = readData();
 //    if(jObj.value("appData").toObject().value("username").isUndefined())
 //    {
