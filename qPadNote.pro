@@ -1,5 +1,4 @@
 QT += widgets network
-CONFIG += c++17
 
 SOURCES += \
     applicationconfig.cpp \
