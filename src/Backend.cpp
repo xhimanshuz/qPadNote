@@ -1,9 +1,6 @@
 #include "Backend.h"
-
 #include <QDebug>
 #include <QScrollArea>
-
-#include "userui.h"
 
 Backend::Backend(QRect screen, QWidget *parent)
     : QWidget(parent), screenSize(screen) {
@@ -13,8 +10,6 @@ Backend::Backend(QRect screen, QWidget *parent)
                  Qt::WindowType::FramelessWindowHint);
   setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
 
-  io = Firebase::getInstance();
-
   dataEngine = DataEngine::getInstance();
 
   mainLayout = new QVBoxLayout;
@@ -22,11 +17,11 @@ Backend::Backend(QRect screen, QWidget *parent)
       std::map<std::string, std::pair<TodoWindow *, TodoWindow *>>>();
 
   setMouseTracking(true);
-  renderUi();
-  setLayout(mainLayout);
 
-  createTabByFile();
-  setupSystemTrayIcon();
+    renderUi();
+    setLayout(mainLayout);
+    createTabByFile();
+    setupSystemTrayIcon();
 }
 
 Backend::~Backend() {}
@@ -102,7 +97,7 @@ void Backend::createTab(std::string name, bool initialCall) {
     tabName = (name == "")
                   ? tr("Tab %0").arg(QChar('A' + count++)).toStdString()
                   : name;
-    io->addTab(tabName);
+//    io->addTab(tabName);
   }
   dataEngine->createTabMap(tabName);
   tabWidget->addTab(createSplitter(tabName, tabWidget),
@@ -114,7 +109,7 @@ void Backend::removeTab(const int index, const std::string &tabName) {
   tabWidget->removeTab(index);
   dataEngine->removeTabMap(tabName);
 
-  io->removeTab(tabName);
+//  io->removeTab(tabName);
   //    networkEngine->removeTab(tabName);
 }
 
@@ -126,19 +121,16 @@ void Backend::renameTab(int index) {
                             QLineEdit::Normal, oldName, &ok);
   if (ok) {
     tabWidget->setTabText(index, tabName);
-    auto todoWindow =
-        std::move(tabToWindowsMap->find(oldName.toStdString())->second.first);
-    auto doneWindow =
-        std::move(tabToWindowsMap->find(oldName.toStdString())->second.second);
+    auto todoWindow = std::move(tabToWindowsMap->find(oldName.toStdString())->second.first);
+    auto doneWindow = std::move(tabToWindowsMap->find(oldName.toStdString())->second.second);
     todoWindow->setTabName(tabName.toStdString());
     doneWindow->setTabName(tabName.toStdString());
 
-    tabToWindowsMap->insert(std::make_pair(
-        tabName.toStdString(),
-        std::make_pair(std::move(todoWindow), std::move(doneWindow))));
+    tabToWindowsMap->insert(std::make_pair( tabName.toStdString(), std::make_pair(std::move(todoWindow), std::move(doneWindow))));
     tabToWindowsMap->erase(oldName.toStdString());
 
-    io->renameTab(oldName.toStdString(), tabName.toStdString());
+    dataEngine->renameTabMap(oldName.toStdString(), tabName.toStdString());
+    dataEngine->writeData();
   }
 }
 
@@ -191,11 +183,10 @@ void Backend::addTabBar() {
       hide();
   });
 
+  // Need to work on user management
   userInfoButton = new QToolButton(this);
   userInfoButton->setIcon(QIcon("://user.png"));
   connect(userInfoButton, &QToolButton::clicked, []() {
-    UserUI ui;
-    ui.exec();
   });
 
   menu = new QMenu;
@@ -247,7 +238,7 @@ void Backend::setupSystemTrayIcon() {
 
 void Backend::leaveEvent(QEvent *event) {
   event->accept();
-  io->writeData();
+//  io->writeData();
 }
 
 void Backend::hideEvent(QHideEvent *) {

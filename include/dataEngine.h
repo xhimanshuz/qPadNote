@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "TodoBlock.h"
+#include "AbstractIO.h"
 
 #include <QMap>
 #include <QJsonDocument>
@@ -31,7 +32,7 @@ class DataEngine
     QJsonObject readData();
     QJsonDocument mapToJson();
 
-    std::string fileName;
+    AbstractIO *io;
 public:
  void jsonToMap(QJsonObject jObj);
     DataEngine();

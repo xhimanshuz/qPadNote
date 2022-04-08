@@ -1,20 +1,17 @@
 #include "dataEngine.h"
+#include "JsonFileIO.h"
+
 #include <QDebug>
 #include <thread>
 
 DataEngine* DataEngine::instance = nullptr;
 
-DataEngine::DataEngine(): fileName{"config.json"}
-{
+DataEngine::DataEngine() {
     tabBlockMap = std::make_shared<std::map<std::string, std::pair< std::shared_ptr<std::map<int64_t, TodoBlock*>>, std::shared_ptr<std::map<int64_t, TodoBlock*>> >>>();
     config.fontSize = 13;
     config.fontFamily = "Roboto";
-
-//    readUsername();
-//    jsonToMap(readData());
-
-
-//    std::thread(&DataEngine::hashModified, this).detach();
+    io = JsonFileIO::getInstance();
+    jsonToMap(readData());
 }
 
 DataEngine::~DataEngine()
@@ -143,44 +140,20 @@ void DataEngine::jsonToMap(QJsonObject jObj)
 
 QJsonObject DataEngine::readData()
 {
-    QFile file(fileName.c_str());
-    if(!file.open(QFile::ReadOnly))
-    {
-        qDebug()<<" Error I/O Read File "<< fileName.c_str();
-        writeData();
-        return QJsonObject();
-    }
-    auto f = file.readAll();
-
-    QJsonDocument jDoc = QJsonDocument::fromJson(f);
-    file.close();
-    return jDoc.object();
+  QByteArray data;
+  io->readData(data);
+  QJsonDocument jDoc = QJsonDocument::fromJson(data);
+  return jDoc.object();
 }
 
 void DataEngine::writeData()
 {
-    QFile file(fileName.c_str());
-    if(!file.open(QFile::WriteOnly))
-    {
-        qDebug()<<" Error I/O Writing File "<< fileName.c_str();
-        return;
-    }
-
-//    file.write(mapToJson().toJson());
-    file.close();
+    io->writeData(mapToJson().toJson());
 }
 
 void DataEngine::writeData(QJsonDocument json)
 {
-    QFile file(fileName.c_str());
-    if(!file.open(QFile::WriteOnly))
-    {
-        qDebug()<<" Error I/O Writing File "<< fileName.c_str();
-        return;
-    }
-
-    file.write(json.toJson());
-    file.close();
+  io->writeData(json.toJson());
 }
 
 void DataEngine::deleteBlock(int64_t id, const std::string tabName)
@@ -197,8 +170,7 @@ void DataEngine::deleteBlock(int64_t id, const std::string tabName)
        delete tabBlockMap->find(tabName)->second.second->find(id)->second;
        tMap->second.second->erase(id);
    }
-
-//    writeData();
+    writeData();
 }
 
 void DataEngine::createTabMap(const std::string &tabName)
@@ -215,7 +187,6 @@ void DataEngine::removeTabMap(const std::string &tabName)
 
 void DataEngine::renameTabMap(const std::string &oldName, const std::string &newName)
 {
-
     tabBlockMap->insert(std::make_pair(newName, std::move(tabBlockMap->find(oldName)->second)));
     tabBlockMap->erase(oldName);
 }
