@@ -40,3 +40,28 @@ QCheckBox::indicator::checked::hover {
     background : #f50057;
 }
 
+QTabWidget::pane {
+            border-width: 0px;
+            border-style: solid;
+            border-color: black;
+            border-radius: 12px;
+        }
+
+QTabBar::tab:selected {
+    background: black;
+    border-width: 1px;
+    border-color: red;
+    border-radius: 10px;
+    border-bottom-color: red;
+}
+
+QTabBar::tab:!selected {
+    background: black;
+    border-width: 1px;
+    border-color: grey;
+    border-radius: 10px;
+}
+
+QTabBar::tab::hover {
+    background: red;
+}
