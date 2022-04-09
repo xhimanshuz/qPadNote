@@ -25,18 +25,27 @@ QTextEdit {
 }
 
 QCheckBox::indicator:unchecked {
-     background: #f50057;
- }
+    background: #f50057;
+}
 
- QCheckBox::indicator:unchecked:hover {
-     background: #00e676;
- }
+QCheckBox::indicator:unchecked:hover {
+    background: #00e676;
+}
 
- QCheckBox::indicator:checked {
+QCheckBox::indicator:checked {
      background : #00e676;
- }
+}
 
 QCheckBox::indicator::checked::hover {
     background : #f50057;
 }
 
+QTabWidget::pane {
+	border-width: 2px;
+    border-style: solid;
+    border-color: #0000ff;
+    border-radius: 6px;
+}
+QTabWidget::tab-bar {          
+	left: 5px;
+}
