@@ -1,19 +1,15 @@
 #include "Backend.h"
-
 #include <QDebug>
 #include <QScrollArea>
 
-#include "userui.h"
-
 Backend::Backend(QRect screen, QWidget *parent)
     : QWidget(parent), screenSize(screen) {
+  log = spdlog::get("qlog");
   setObjectName("backend");
   setWindowFlags(Qt::WindowType::Dialog |
                  Qt::WindowType::NoDropShadowWindowHint |
                  Qt::WindowType::FramelessWindowHint);
   setWindowFlags(windowFlags() & ~Qt::WindowTitleHint);
-
-  io = Firebase::getInstance();
 
   dataEngine = DataEngine::getInstance();
 
@@ -22,11 +18,11 @@ Backend::Backend(QRect screen, QWidget *parent)
       std::map<std::string, std::pair<TodoWindow *, TodoWindow *>>>();
 
   setMouseTracking(true);
-  renderUi();
-  setLayout(mainLayout);
 
-  createTabByFile();
-  setupSystemTrayIcon();
+    renderUi();
+    setLayout(mainLayout);
+    createTabByFile();
+    setupSystemTrayIcon();
 }
 
 Backend::~Backend() {}
@@ -60,12 +56,14 @@ void Backend::renderUi() {
 }
 
 void Backend::updateTodoWindow(const std::string &tabName) {
+  _FUNC_LOG_
   tabToWindowsMap->find(tabName)->second.first->updateTodoBlocks();
   tabToWindowsMap->find(tabName)->second.second->updateTodoBlocks();
 }
 
 QSplitter *Backend::createSplitter(const std::string &tabName,
                                    QWidget *parent) {
+  _FUNC_LOG_
   QSplitter *splitter = new QSplitter(Qt::Vertical, parent);
   //    splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
   QScrollArea *todoScrollArea = new QScrollArea(splitter);
@@ -90,6 +88,7 @@ QSplitter *Backend::createSplitter(const std::string &tabName,
 }
 
 void Backend::createTab(std::string name, bool initialCall) {
+  _FUNC_LOG_
   auto count = tabWidget->count();
   std::string tabName =
       (name == "") ? tr("Tab %0").arg(QChar('A' + count)).toStdString() : name;
@@ -102,7 +101,7 @@ void Backend::createTab(std::string name, bool initialCall) {
     tabName = (name == "")
                   ? tr("Tab %0").arg(QChar('A' + count++)).toStdString()
                   : name;
-    io->addTab(tabName);
+//    io->addTab(tabName);
   }
   dataEngine->createTabMap(tabName);
   tabWidget->addTab(createSplitter(tabName, tabWidget),
@@ -111,14 +110,16 @@ void Backend::createTab(std::string name, bool initialCall) {
 }
 
 void Backend::removeTab(const int index, const std::string &tabName) {
+  _FUNC_LOG_
   tabWidget->removeTab(index);
   dataEngine->removeTabMap(tabName);
 
-  io->removeTab(tabName);
+//  io->removeTab(tabName);
   //    networkEngine->removeTab(tabName);
 }
 
 void Backend::renameTab(int index) {
+  _FUNC_LOG_
   auto oldName = tabWidget->tabText(index);
   bool ok;
   QString tabName =
@@ -126,23 +127,21 @@ void Backend::renameTab(int index) {
                             QLineEdit::Normal, oldName, &ok);
   if (ok) {
     tabWidget->setTabText(index, tabName);
-    auto todoWindow =
-        std::move(tabToWindowsMap->find(oldName.toStdString())->second.first);
-    auto doneWindow =
-        std::move(tabToWindowsMap->find(oldName.toStdString())->second.second);
+    auto todoWindow = std::move(tabToWindowsMap->find(oldName.toStdString())->second.first);
+    auto doneWindow = std::move(tabToWindowsMap->find(oldName.toStdString())->second.second);
     todoWindow->setTabName(tabName.toStdString());
     doneWindow->setTabName(tabName.toStdString());
 
-    tabToWindowsMap->insert(std::make_pair(
-        tabName.toStdString(),
-        std::make_pair(std::move(todoWindow), std::move(doneWindow))));
+    tabToWindowsMap->insert(std::make_pair( tabName.toStdString(), std::make_pair(std::move(todoWindow), std::move(doneWindow))));
     tabToWindowsMap->erase(oldName.toStdString());
 
-    io->renameTab(oldName.toStdString(), tabName.toStdString());
+    dataEngine->renameTabMap(oldName.toStdString(), tabName.toStdString());
+    dataEngine->writeData();
   }
 }
 
 void Backend::createTabByFile() {
+  _FUNC_LOG_
   if (!dataEngine->tabBlockMap->size())
     createTab();
   else {
@@ -153,14 +152,17 @@ void Backend::createTabByFile() {
 }
 
 void Backend::addTabBar() {
+  _FUNC_LOG_
   addTabAction = new QAction("+");
   connect(addTabAction, &QAction::triggered, [this] {
+    _FUNC_LOG_
     createTab();
     tabWidget->setCurrentIndex(tabWidget->count());
   });
 
   delTabAction = new QAction("-");
   connect(delTabAction, &QAction::triggered, [this] {
+    _FUNC_LOG_
     if (QMessageBox::No ==
         QMessageBox::warning(this, "Do you want to Close Tab",
                              "All Tab data will be lost! Do you want that?",
@@ -174,16 +176,17 @@ void Backend::addTabBar() {
 
   editTabAction = new QAction("e");
   connect(editTabAction, &QAction::triggered,
-          [this] { renameTab(tabWidget->currentIndex()); });
+          [this] { _FUNC_LOG_ renameTab(tabWidget->currentIndex()); });
 
   moreTabToolButton = new QToolButton;
   moreTabToolButton->setIcon(QIcon("://option.png"));
 
   closeAction = new QAction("Exit");
-  connect(closeAction, &QAction::triggered, [this] { this->close(); });
+  connect(closeAction, &QAction::triggered, [this] { _FUNC_LOG_ this->close(); });
 
   showAction = new QAction("Show/Hide");
   connect(showAction, &QAction::triggered, [this] {
+    _FUNC_LOG_
     if (this->isHidden()) {
       show();
       activateWindow();
@@ -191,11 +194,11 @@ void Backend::addTabBar() {
       hide();
   });
 
+  // Need to work on user management
   userInfoButton = new QToolButton(this);
   userInfoButton->setIcon(QIcon("://user.png"));
-  connect(userInfoButton, &QToolButton::clicked, []() {
-    UserUI ui;
-    ui.exec();
+  connect(userInfoButton, &QToolButton::clicked, [=]() {
+    _FUNC_LOG_
   });
 
   menu = new QMenu;
@@ -229,6 +232,7 @@ void Backend::addTabBar() {
 }
 
 void Backend::setupSystemTrayIcon() {
+  _FUNC_LOG_
   sysTrayIcon = new QSystemTrayIcon(QIcon("://option.png"));
   connect(sysTrayIcon, &QSystemTrayIcon::activated,
           [this](QSystemTrayIcon::ActivationReason reason) {
@@ -246,11 +250,13 @@ void Backend::setupSystemTrayIcon() {
 }
 
 void Backend::leaveEvent(QEvent *event) {
+  _FUNC_LOG_
   event->accept();
-  io->writeData();
+//  io->writeData();
 }
 
 void Backend::hideEvent(QHideEvent *) {
+  _FUNC_LOG_
   //    if(this->isMinimized())
   //        this->activateWindow();
 }

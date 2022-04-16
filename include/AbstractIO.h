@@ -1,10 +1,7 @@
 #ifndef ABSTRACTIO_H
 #define ABSTRACTIO_H
 
-#include "Protocol.h"
 #include "TodoBlock.h"
-// class TodoBlock;
-// class Protocol;
 
 class AbstractIO {
 public:
@@ -25,9 +22,11 @@ public:
 
   virtual void renameTab(std::string xtid, std::string tid) = 0;
 
-  virtual void writeData() = 0;
+  virtual void writeData(QByteArray const& data) = 0;
   virtual void writeBlock(TodoBlock &todoBlock) = 0;
   virtual void writeBlocks(std::vector<TodoBlock *> &blocksVector) = 0;
+
+  virtual void readData(QByteArray& data) = 0;
 };
 
 #endif // ABSTRACTIO_H

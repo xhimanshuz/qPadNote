@@ -5,6 +5,8 @@
 #include <memory>
 
 #include "TodoBlock.h"
+#include "AbstractIO.h"
+#include "Log.h"
 
 #include <QMap>
 #include <QJsonDocument>
@@ -30,8 +32,9 @@ class DataEngine
 {
     QJsonObject readData();
     QJsonDocument mapToJson();
+    std::shared_ptr<spdlog::logger> log;
 
-    std::string fileName;
+    AbstractIO *io;
 public:
  void jsonToMap(QJsonObject jObj);
     DataEngine();

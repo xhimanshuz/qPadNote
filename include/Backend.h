@@ -16,7 +16,7 @@
 #include <QToolBar>
 #include <QWidget>
 
-#include "Firebase.h"
+#include "AbstractIO.h"
 #include "TodoBlock.h"
 #include "TodoWindow.h"
 #include "dataEngine.h"
@@ -66,6 +66,7 @@ class Backend : public QWidget {
   QMenu* menu;
 
   QAction* showAction;
+  std::shared_ptr<spdlog::logger> log;
 };
 
 #endif  // BACKEND_H
