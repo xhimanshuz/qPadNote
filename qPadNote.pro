@@ -25,7 +25,6 @@ CONFIG(release, debug|release) {
   BUILD_TYPE = "release"
 }
 
-
 win32 {
     OS_TYPE = "win32"
 
