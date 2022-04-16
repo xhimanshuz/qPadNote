@@ -66,6 +66,7 @@ class Backend : public QWidget {
   QMenu* menu;
 
   QAction* showAction;
+  std::shared_ptr<spdlog::logger> log;
 };
 
 #endif  // BACKEND_H

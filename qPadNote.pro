@@ -12,6 +12,7 @@ HEADERS += \
     include/JsonFileIO.h \
     include/AbstractIO.h \
     include/Backend.h \
+    include/Log.h \
     include/TodoBlock.h \
     include/TodoWindow.h \
     include/data.h \
@@ -24,14 +25,14 @@ CONFIG(release, debug|release) {
   BUILD_TYPE = "release"
 }
 
+
 win32 {
     OS_TYPE = "win32"
 
     CONFIG += static
-
     INCLUDEPATH += include
+    DEFINES += "__PRETTY_FUNCTION__=__FUNCSIG__"
 }
-
 unix {
     INCLUDEPATH += include
 }
@@ -41,6 +42,7 @@ message("Building Mode $$BUILD_TYPE")
 
 RESOURCES += \
     Data/ResourceFile.qrc
+
 
 DESTDIR = $$PWD/build/
 

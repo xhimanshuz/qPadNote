@@ -1,6 +1,8 @@
 #ifndef JSONFILEIO_H
 #define JSONFILEIO_H
 
+#include "Log.h"
+
 #include <AbstractIO.h>
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -9,9 +11,12 @@
 class JsonFileIO : public AbstractIO
 {
   JsonFileIO(): m_filename{"qPadNote.json"} {
+    log = spdlog::get("qlog");
+    log->info("[!] JsonFileIO Initialized");
   }
 
   QString m_filename;
+  std::shared_ptr<spdlog::logger> log;
  public:
   static JsonFileIO* instance;
   static JsonFileIO* getInstance();
