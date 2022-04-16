@@ -33,7 +33,6 @@ win32 {
     INCLUDEPATH += include
     DEFINES += "__PRETTY_FUNCTION__=__FUNCSIG__"
 }
-
 unix {
     INCLUDEPATH += include
 }
