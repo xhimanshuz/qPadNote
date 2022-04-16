@@ -48,6 +48,7 @@ private:
     std::string tabName;
 
     std::shared_ptr<std::map<int64_t, TodoBlock*>> toBlockMap;
+    std::shared_ptr<spdlog::logger> log;
 };
 
 #endif // TODOWINDOW_H

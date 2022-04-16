@@ -11,61 +11,62 @@ JsonFileIO *JsonFileIO::getInstance()
 
 void JsonFileIO::addTab(const std::string &tid)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::fetchAll()
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::getBlocks(int32_t uid)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::getBlocksByTid(int32_t uid, std::string tid)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::hashModified()
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::moveBlock(std::string xid, bool toogle, std::string tid, std::string id)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::receiveBlocks(uint16_t size, uint8_t quantity)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::removeBlock(int64_t _id)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::removeBlock(int64_t id, const std::string todo, const std::string &tid)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::removeTab(std::string tid, uint32_t _uid)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::renameTab(std::string xtid, std::string tid)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::readData(QByteArray& data)
 {
+  _FUNC_LOG_
   QFile file(m_filename);
   if(!file.open(QFile::ReadOnly))
   {
@@ -92,6 +93,7 @@ void JsonFileIO::readData(QByteArray& data)
 
 void JsonFileIO::writeData(QByteArray const& data)
 {
+  _FUNC_LOG_
   QFile file(m_filename);
   if(!file.open(QFile::WriteOnly))
   {
@@ -105,29 +107,33 @@ void JsonFileIO::writeData(QByteArray const& data)
 
 void JsonFileIO::writeBlock(TodoBlock &todoBlock)
 {
-
+  _FUNC_LOG_
 }
 
 void JsonFileIO::writeBlocks(std::vector<TodoBlock *> &blocksVector)
 {
-
+  _FUNC_LOG_
 }
 
 QString JsonFileIO::readFileString(const QString &fileName)
 {
+  _FUNC_LOG_
   return "";
 }
 
 QJsonObject JsonFileIO::readFileJson(const QString &fileName) {
+  _FUNC_LOG_
   auto byteFile = readFile(fileName);
   return stringToJson(byteFile);
 }
 
 QJsonObject JsonFileIO::stringToJson(const QString &str) {
+  _FUNC_LOG_
   return stringToJson(str.toLocal8Bit());
 }
 
 QJsonObject JsonFileIO::stringToJson(const QByteArray &str) {
+  _FUNC_LOG_
   QJsonDocument doc = QJsonDocument::fromJson(str);
   if(doc.isNull())
     return {};
@@ -135,6 +141,7 @@ QJsonObject JsonFileIO::stringToJson(const QByteArray &str) {
 }
 
 QByteArray JsonFileIO::readFile(const QString &filename) {
+  _FUNC_LOG_
   QFile file(filename);
   if(!file.open(QFile::ReadOnly))
     return {};

@@ -7,6 +7,9 @@
 DataEngine* DataEngine::instance = nullptr;
 
 DataEngine::DataEngine() {
+    log = spdlog::get("qlog");
+    log->info("[!] DataEngine Initialized {}");
+    _FUNC_LOG_
     tabBlockMap = std::make_shared<std::map<std::string, std::pair< std::shared_ptr<std::map<int64_t, TodoBlock*>>, std::shared_ptr<std::map<int64_t, TodoBlock*>> >>>();
     config.fontSize = 13;
     config.fontFamily = "Roboto";
@@ -16,7 +19,7 @@ DataEngine::DataEngine() {
 
 DataEngine::~DataEngine()
 {
-
+  _FUNC_LOG_
 }
 
 
@@ -29,10 +32,11 @@ DataEngine* DataEngine::getInstance()
 
 QJsonDocument DataEngine::mapToJson()
 {
+  _FUNC_LOG_
     QJsonObject mainJ;
 
     QJsonObject userDataJ;
-    for(auto tab: *tabBlockMap)
+    for(auto const& tab: *tabBlockMap)
     {
         QJsonObject tabJ;
 
@@ -84,6 +88,7 @@ QJsonDocument DataEngine::mapToJson()
 
 void DataEngine::jsonToMap(QJsonObject jObj)
 {
+  _FUNC_LOG_
     std::vector<uint32_t> hashVector;
     int16_t uid{0};
 
@@ -135,11 +140,11 @@ void DataEngine::jsonToMap(QJsonObject jObj)
         config.fontSize = appJ.value("fontSize").toInt();
         config.fontFamily = appJ.value("fontFamily").toString().toStdString();
     }
-
 }
 
 QJsonObject DataEngine::readData()
 {
+  _FUNC_LOG_
   QByteArray data;
   io->readData(data);
   QJsonDocument jDoc = QJsonDocument::fromJson(data);
@@ -148,16 +153,19 @@ QJsonObject DataEngine::readData()
 
 void DataEngine::writeData()
 {
+  _FUNC_LOG_
     io->writeData(mapToJson().toJson());
 }
 
 void DataEngine::writeData(QJsonDocument json)
 {
+  _FUNC_LOG_
   io->writeData(json.toJson());
 }
 
 void DataEngine::deleteBlock(int64_t id, const std::string tabName)
 {
+  _FUNC_LOG_
    auto tMap = tabBlockMap->find(tabName);
 
    if(tMap->second.first->find(id) != tMap->second.first->end())
@@ -175,11 +183,13 @@ void DataEngine::deleteBlock(int64_t id, const std::string tabName)
 
 void DataEngine::createTabMap(const std::string &tabName)
 {
+  _FUNC_LOG_
     tabBlockMap->insert(std::make_pair(tabName, std::make_pair(std::make_shared<std::map<int64_t, TodoBlock*>>(), std::make_shared<std::map<int64_t, TodoBlock*>>())));
 }
 
 void DataEngine::removeTabMap(const std::string &tabName)
 {
+  _FUNC_LOG_
     tabBlockMap->find(tabName)->second.first.reset();
     tabBlockMap->find(tabName)->second.second.reset();
     this->tabBlockMap->erase(tabName);
@@ -187,12 +197,14 @@ void DataEngine::removeTabMap(const std::string &tabName)
 
 void DataEngine::renameTabMap(const std::string &oldName, const std::string &newName)
 {
+  _FUNC_LOG_
     tabBlockMap->insert(std::make_pair(newName, std::move(tabBlockMap->find(oldName)->second)));
     tabBlockMap->erase(oldName);
 }
 
 void DataEngine::hashModified()
 {
+  _FUNC_LOG_
     return;
     std::cout<<"[!] HashModified Thread Started!"<<std::endl;
     while(true)
@@ -224,7 +236,7 @@ void DataEngine::hashModified()
 
 void DataEngine::syncWithNetwork()
 {
-
+  _FUNC_LOG_
 }
 
 const std::string& DataEngine::readUsername()

@@ -1,10 +1,11 @@
 #include "TodoWindow.h"
 #include "Backend.h"
+#include "Log.h"
 #include <QDebug>
 
 TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType type, QObject *backend, QWidget *parent) : QWidget(parent), type(type), backend(backend), tabName(_tabName)
 {
-
+  log = spdlog::get("qlog");
     dataEngine = DataEngine::getInstance();
 
     toBlockMap = (type==TodoBlockType::TODO)?dataEngine->tabBlockMap->find(tabName)->second.first:dataEngine->tabBlockMap->find(tabName)->second.second;
@@ -72,6 +73,7 @@ void TodoWindow::connectSignalSlot()
 
 void TodoWindow::addBlock(std::string title, std::string tabName, int64_t id, int64_t position, std::string subString, uint32_t hash, bool isToDone, int16_t uid)
 {
+  _FUNC_LOG_
     if(id == 0)
         id = std::chrono::system_clock::now().time_since_epoch().count();
     TodoBlock *block = new TodoBlock(id, tabName, title, subString, hash, isToDone, uid, this);
@@ -86,6 +88,7 @@ void TodoWindow::addBlock(std::string title, std::string tabName, int64_t id, in
 // Update the todoBlock and add to theri location either todo or done
 void TodoWindow::updateTodoBlocks()
 {
+  _FUNC_LOG_
     for(auto i=toBlockMap->begin(); i!=toBlockMap->end(); ++i)
     {
         blockVBox->addWidget(i->second);
@@ -95,6 +98,8 @@ void TodoWindow::updateTodoBlocks()
 // Move todoBlock map to  map
 void TodoWindow::moveBlock(bool toggle, int64_t blockId)
 {
+  _FUNC_LOG_
+  log->debug("toggle: {} blockID: {}", toggle, blockId);
     std::shared_ptr<std::map<int64_t, TodoBlock*>> fromBlock;
     std::shared_ptr<std::map<int64_t, TodoBlock*>> toBlock;
 
@@ -126,16 +131,19 @@ void TodoWindow::moveBlock(bool toggle, int64_t blockId)
 
 const std::string TodoWindow::getTabName() const
 {
+  _FUNC_LOG_
     return tabName;
 }
 
 void TodoWindow::setTabName(const std::string &_tabName)
 {
+  _FUNC_LOG_
     this->tabName = _tabName;
 }
 
 void TodoWindow::setSignals()
 {
+  _FUNC_LOG_
     for(auto i=toBlockMap->begin(); i!=toBlockMap->end(); ++i) {
       setBlockSignals(i->second);
     }
@@ -143,6 +151,7 @@ void TodoWindow::setSignals()
 
 void TodoWindow::setBlockSignals(TodoBlock *block)
 {
+  _FUNC_LOG_
   connect(block, &TodoBlock::moveBlock, [&](bool toggle, int64_t id){
     moveBlock(toggle, id); });
   connect(block, &TodoBlock::deleteBlock, this, [=](int64_t id, bool isToDone){
@@ -158,5 +167,6 @@ void TodoWindow::setBlockSignals(TodoBlock *block)
 
 void TodoWindow::updateRender()
 {
+  _FUNC_LOG_
     ((Backend*)this->backend)->updateTodoWindow(tabName);
 }
