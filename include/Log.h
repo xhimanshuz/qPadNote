@@ -8,11 +8,7 @@
 #include <QJsonObject>
 
 #ifndef _FUNC_LOG_
-  #ifdef __unix__
     #define _FUNC_LOG_ (log->info("{} {} {}", __PRETTY_FUNCTION__, __LINE__, __FILE__));
-  #else
-    #define _FUNC_LOG_ (log->info("{}::{}", typeid (*this).name(), __FUNCTION__, __LINE__));
-  #endif
 #endif
 
 inline std::string str(QString const& str) {
