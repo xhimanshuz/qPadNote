@@ -35,9 +35,7 @@ win32 {
 }
 
 unix {
-    INCLUDEPATH += include \
-      /home/gnu/Documents/Codes/git/spdlog/include
-#      LIBS += -lspdlog
+    INCLUDEPATH += include
 }
 
 message("OS Detected: $$OS_TYPE")
