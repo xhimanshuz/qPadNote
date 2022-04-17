@@ -1,6 +1,7 @@
 #include "TodoWindow.h"
 #include "Backend.h"
 #include "Log.h"
+#include "SettingDialog/SettingDialog.h"
 #include <QDebug>
 
 TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType type, QObject *backend, QWidget *parent) : QWidget(parent), type(type), backend(backend), tabName(_tabName)
@@ -16,6 +17,11 @@ TodoWindow::TodoWindow(std::string _tabName, std::string title, TodoBlockType ty
     titleLable->setStyleSheet(QString("color: #%0; margin-left: 10px; border-bottom: 0.5px solid %0; border-radius: 0px;").arg((type==TodoBlockType::TODO)?"ffd600":"00e676"));
     hbox->addWidget(titleLable, 0, Qt::AlignmentFlag::AlignTop);
     hbox->addStrut(1);
+
+    if(type == TodoBlockType::TODO) {
+      setupAction();
+      hbox->addWidget(moreToolButton, 1);
+    }
     mainLayout->addLayout(hbox);
     mainLayout->setSpacing(0);
     mainLayout->setContentsMargins(0, 0, 0, 0);
@@ -63,12 +69,7 @@ void TodoWindow::renderUi()
 
     mainLayout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    connectSignalSlot();
-}
-
-void TodoWindow::connectSignalSlot()
-{
-
+    setupSignalSlot();
 }
 
 void TodoWindow::addBlock(std::string title, std::string tabName, int64_t id, int64_t position, std::string subString, uint32_t hash, bool isToDone, int16_t uid)
@@ -168,5 +169,29 @@ void TodoWindow::setBlockSignals(TodoBlock *block)
 void TodoWindow::updateRender()
 {
   _FUNC_LOG_
-    ((Backend*)this->backend)->updateTodoWindow(tabName);
+      ((Backend*)this->backend)->updateTodoWindow(tabName);
+}
+
+void TodoWindow::setupSignalSlot()
+{
+  if(type == TodoBlockType::TODO) {
+    connect(aboutAction, &QAction::triggered, []{
+      SettingDialog sd;
+      sd.exec();
+    });
+  }
+}
+
+void TodoWindow::setupAction()
+{
+  if(type == TodoBlockType::TODO) {
+    aboutAction = new QAction("About", this);
+
+    auto menu = new QMenu("...", this);
+    menu->addAction(aboutAction);
+
+    moreToolButton = new QToolButton(this);
+    moreToolButton->setMenu(menu);
+    moreToolButton->setPopupMode(QToolButton::InstantPopup);
+  }
 }

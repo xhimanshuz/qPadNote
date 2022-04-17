@@ -4,7 +4,6 @@
 #include "Log.h"
 #include "TodoWindow.h"
 #include "TodoBlock.h"
-#include <iostream>
 
 int main(int argc, char** argv)
 {

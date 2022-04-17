@@ -53,6 +53,7 @@ class Backend : public QWidget {
   QAction* delTabAction;
   QAction* editTabAction;
   QAction* closeAction;
+  QAction* aboutAction;
   //    QAction *minimizeToTray;
   QToolButton* moreTabToolButton;
 
@@ -67,6 +68,11 @@ class Backend : public QWidget {
 
   QAction* showAction;
   std::shared_ptr<spdlog::logger> log;
+
+  void setupSignalSlot();
+
+ public slots:
+      void onAboutActionClicked();
 };
 
 #endif  // BACKEND_H
