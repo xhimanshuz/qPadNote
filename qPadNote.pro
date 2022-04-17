@@ -1,6 +1,8 @@
 QT += widgets network
 
 SOURCES += \
+    src/SettingDialog/AboutSettingDialog.cpp \
+    src/SettingDialog/SettingDialog.cpp \
     src/JsonFileIO.cpp \
     src/Backend.cpp \
     src/TodoBlock.cpp \
@@ -9,6 +11,8 @@ SOURCES += \
     src/qPadNote.cpp
 
 HEADERS += \
+    include/SettingDialog/AboutSettingDialog.h \
+    include/SettingDialog/SettingDialog.h \
     include/JsonFileIO.h \
     include/AbstractIO.h \
     include/Backend.h \

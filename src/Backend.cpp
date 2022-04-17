@@ -1,4 +1,5 @@
 #include "Backend.h"
+#include "SettingDialog/SettingDialog.h"
 #include <QDebug>
 #include <QScrollArea>
 
@@ -53,6 +54,7 @@ void Backend::renderUi() {
   mainLayout->addWidget(tabWidget);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   addTabBar();
+  setupSignalSlot();
 }
 
 void Backend::updateTodoWindow(const std::string &tabName) {
@@ -184,6 +186,8 @@ void Backend::addTabBar() {
   closeAction = new QAction("Exit");
   connect(closeAction, &QAction::triggered, [this] { _FUNC_LOG_ this->close(); });
 
+  aboutAction = new QAction("About");
+
   showAction = new QAction("Show/Hide");
   connect(showAction, &QAction::triggered, [this] {
     _FUNC_LOG_
@@ -207,6 +211,7 @@ void Backend::addTabBar() {
   menu->addAction(editTabAction);
   menu->addAction(closeAction);
   menu->addAction(showAction);
+  menu->addAction(aboutAction);
 
   moreTabToolButton->setMenu(menu);
   moreTabToolButton->setPopupMode(QToolButton::InstantPopup);
@@ -259,4 +264,15 @@ void Backend::hideEvent(QHideEvent *) {
   _FUNC_LOG_
   //    if(this->isMinimized())
   //        this->activateWindow();
+}
+
+void Backend::setupSignalSlot()
+{
+  connect(aboutAction, &QAction::triggered, this, &Backend::onAboutActionClicked);
+}
+
+void Backend::onAboutActionClicked()
+{
+  SettingDialog sd;
+  sd.exec();
 }
